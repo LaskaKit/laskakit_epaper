@@ -46,43 +46,41 @@ namespace LaskaKit::Epaper {
     class Display
     {
     public:
-        virtual uint width() = 0;
-        virtual uint height() = 0;
+        virtual size_t width() = 0;
+        virtual size_t height() = 0;
         virtual void on() = 0;
         virtual void off() = 0;
         virtual void fullUpdate() = 0;
-        virtual void setRotation(DisplayRotation rot) = 0;
-        virtual void fillScreen(int color) = 0;
+        // virtual void setRotation(DisplayRotation rot) = 0;
+        // virtual void fillScreen(int color) = 0;
         virtual void drawPixel(int x, int y, uint8_t color) = 0;
-        virtual void drawText(int x, int y, const String& text, PixelColor px) = 0;
-        virtual void drawCenteredText(int x, int y, const String& text) = 0;
-        virtual void fillRect(int x, int y, int width, int heitht) = 0;
-        virtual void drawQrCode(int x, int y, int width, const uint8_t* data) = 0;
+        // virtual void drawText(int x, int y, const String& text, uint8_t color) = 0;
+        // virtual void drawCenteredText(int x, int y, const String& text, uint8_t color) = 0;
+        // virtual void fillRect(int x, int y, int width, int heitht) = 0;
         virtual ~Display() {}
     };
 
+    // class DisplayGFX : public Adafruit_GFX
+    // {
+    // private:
+    //     std::unique_ptr<Display> display;
+    // public:
+    //     DisplayGFX(std::unique_ptr<Display>& display)
+    //         : Adafruit_GFX(display->width(), display->height()),
+    //           display(std::move(display))
+    //     {
+    //     }
 
-    class DisplayGFX : public Adafruit_GFX
-    {
-    private:
-        std::unique_ptr<Display> display;
-    public:
-        EpaperDisplayGFX(std::unique_ptr<Display>& display)
-            : Adafruit_GFX(display->width(), display->height()),
-              display(std::move(display))
-        {
-        }
+    //     void drawPixel(int16_t x, int16_t y, uint16_t color)
+    //     {
+    //         this->display->drawPixel(x, y, color);
+    //     };
 
-        void drawPixel(int16_t x, int16_t y, uint16_t color)
-        {
-            this->display->drawPixel(x, y, color);
-        };
-
-        void fullUpdate()
-        {
-            this->display->fullUpdate();
-        }
-    };
+    //     void fullUpdate()
+    //     {
+    //         this->display->fullUpdate();
+    //     }
+    // };
 }
 
 #include <laskakit_GDEY075T7.hpp>

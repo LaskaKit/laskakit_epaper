@@ -1,32 +1,44 @@
 #pragma once
 
 #include <laskakit_epaper.hpp>
-#include <GxEPD2_BW.h>
+
+#include "raw.hpp"
+
 
 namespace LaskaKit::Epaper {
     class GDEY075T7 : public Display
     {
     private:
-        GxEPD2_BW<GxEPD2_750_GDEY075T7, GxEPD2_750_GDEY075T7::HEIGHT> display;
-        int pin_power;
+        uint8_t pin_power;
+        uint8_t buffer[800 * 480];
 
     public:
         GDEY075T7(int pin_ss, int pin_dc, int pin_rst, int pin_busy, int pin_power)
-            : display(GxEPD2_750_GDEY075T7(pin_ss, pin_dc, pin_rst, pin_busy)),
-              pin_power(pin_power)
+            : pin_power(pin_power)
         {
-            this->display.init();
             pinMode(pin_power, OUTPUT);
+            this->on();
+
+            delay(500);
+            pinMode(pin_busy, INPUT);
+            pinMode(pin_rst, OUTPUT);
+            pinMode(pin_dc, OUTPUT);
+            pinMode(pin_ss, OUTPUT);
+
+            //SPI
+            SPI.beginTransaction(SPISettings(10000000, MSBFIRST, SPI_MODE0)); 
+            SPI.begin (12, -1, 11, pin_ss);
+            this->setupBuffer();
         }
 
         uint width()
         {
-            return this->display.width();
+            return 800;
         }
 
         uint height()
         {
-            return this->display.height();
+            return 480;
         }
 
         void on()
@@ -39,70 +51,111 @@ namespace LaskaKit::Epaper {
             digitalWrite(this->pin_power, LOW);
         }
 
-        void fullUpdate()
+        void setupBuffer()
         {
-            this->display.display(false);
-        }
-
-        void setRotation(DisplayRotation rot)
-        {
-            switch (rot) {
-                case DisplayRotation::NO_ROTATION:
-                    this->display.setRotation(0);
-                    break;
-                case DisplayRotation::RIGHT_90:
-                case DisplayRotation::LEFT_270:
-                    this->display.setRotation(3);
-                    break;
-                case DisplayRotation::RIGHT_180:
-                case DisplayRotation::LEFT_180:
-                    this->display.setRotation(2);
-                    break;
-                case DisplayRotation::RIGHT_270:
-                case DisplayRotation::LEFT_90:
-                    this->display.setRotation(1);
-                    break;
+            uint8_t* buffer = this->buffer;
+            for (int row = 0; row < 480; row++) {
+                for (int col = 0; col < 800; col++) {
+                    int index = row * 800 + col;
+                    
+                    if (row < 120) {
+                        // Top quarter: White
+                        buffer[index] = 0x11;
+                    } else if (row < 240) {
+                        // Second quarter: Light Gray
+                        buffer[index] = 0x10;
+                    } else if (row < 360) {
+                        // Third quarter: Dark Gray
+                        buffer[index] = 0x01;
+                    } else {
+                        // Bottom quarter: Black
+                        buffer[index] = 0x00;
+                    }
+                }
             }
         }
+        
 
-        void fillScreen(int color)
+        //4 grayscale demo function
+        /********Color display description
+             white  gray1  gray2  black
+        0x10|  01     01     00     00
+        0x13|  01     00     01     00
+                                        ****************/
+        void writeBufferToScreen() {
+            uint8_t* buffer = this->buffer;
+            // Old data (0x10)
+            EPD_W21_WriteCMD(0x10);
+            for (size_t i = 0; i < 48000; i++) {
+                uint8_t temp3 = 0;
+                
+                // Process 8 pixels per byte
+                for (int bit = 0; bit < 8; bit++) {
+                    uint32_t pixel_index = i * 8 + bit;
+                    
+                    // Check bounds
+                    if (pixel_index >= (480 * 800)) break;
+                    
+                    uint8_t pixel_value = buffer[pixel_index];
+                    
+                    temp3 <<= 1; // Shift previous bits left
+                    
+                    // Extract old data bit (bit 4 of your 2-bit format)
+                    if (pixel_value & 0x10) {
+                        temp3 |= 1; // Set bit if 0x10 or 0x11
+                    }
+                    // else bit remains 0 for 0x00 and 0x01
+                }
+                EPD_W21_WriteDATA(temp3);
+            }
+            
+            // New data (0x13)
+            EPD_W21_WriteCMD(0x13);
+            for (size_t i = 0; i < 48000; i++) {
+                uint8_t temp3 = 0;
+                
+                // Process 8 pixels per byte
+                for (int bit = 0; bit < 8; bit++) {
+                    uint32_t pixel_index = i * 8 + bit;
+                    
+                    // Check bounds
+                    if (pixel_index >= (480 * 800)) break;
+                    
+                    uint8_t pixel_value = buffer[pixel_index];
+                    
+                    temp3 <<= 1; // Shift previous bits left
+                    
+                    // Extract new data bit (bit 0 of your 2-bit format)
+                    if (pixel_value & 0x01) {
+                        temp3 |= 1; // Set bit if 0x01 or 0x11
+                    }
+                    // else bit remains 0 for 0x00 and 0x10
+                }
+                EPD_W21_WriteDATA(temp3);
+            }
+            
+            lut(); // Trigger display refresh
+        }
+
+        void fullUpdate()
         {
-            this->display.fillScreen(color);
+            EPD_init_4Gray();
+            this->writeBufferToScreen();
+            EPD_W21_WriteCMD(0x12);   //DISPLAY REFRESH   
+            driver_delay_xms(100);    //!!!The delay here is necessary, 200uS at least!!!     
+            lcd_chkstatus();
+            EPD_sleep();
         }
 
         void drawPixel(int x, int y, uint8_t color)
         {
-            this->display.drawPixel(x, y, color);
+            size_t pos = y * 800 + x;
+            this->buffer[pos] = color;
         }
-
-        void drawText(int x, int y, const String& text, uint8_t color)
-        {
-            this->display.setTextColor(GxEPD_BLACK);
-            this->display.setCursor(x, y);
-            this->display.print(text);
-        }
-
-        void drawCenteredText(int x, int y, const String& text)
-        {
-            int16_t x_center, y_center;
-            uint16_t width, height;
-            this->display.setTextColor(GxEPD_BLACK);
-            this->display.getTextBounds(text.c_str(), 0, 0, &x_center, &y_center, &width, &height);
-            this->display.setCursor(x - (width / 2), y + (height / 2));
-            this->display.print(text);
-        }
-
-        void fillRect(int x, int y, int width, int height)
-        {
-            this->display.fillRect(x, y, width, height, GxEPD_BLACK);
-        }
-
-        void drawQrCode(int x, int y, int width, const uint8_t* data)
-        {}
 
         ~GDEY075T7()
         {
-            this->display.end();
+            SPI.end();
             this->off();
         }
     };
