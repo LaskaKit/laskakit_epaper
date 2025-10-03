@@ -10,14 +10,23 @@
 
 #include <SPI.h>
 
+// #define MISO -1
+// #define MOSI 11
+// #define SCK 12
+// #define CS 10
+// #define DC 48
+// #define RST 45
+// #define BUSY 38
+// #define POWER 47
+
 #define MISO -1
-#define MOSI 11
-#define SCK 12
-#define CS 10
-#define DC 48
-#define RST 45
-#define BUSY 38
-#define POWER 47
+#define MOSI PIN_SDA
+#define SCK PIN_SCL
+#define CS PIN_CS
+#define DC PIN_DC
+#define RST PIN_RST
+#define BUSY PIN_BUSY
+#define POWER PIN_POWER
 
 #define EPD_W21_CS_0 digitalWrite(CS, LOW)
 #define EPD_W21_CS_1 digitalWrite(CS, HIGH)

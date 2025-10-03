@@ -9,13 +9,21 @@ namespace LaskaKit::Epaper {
     class GDEY075T7 : public Display
     {
     private:
-        uint8_t pin_power;
-        uint8_t buffer[800 * 480];
+        const uint8_t pin_power;
+        static const uint WIDTH = 800;
+        static const uint HEIGHT = 480;
+        uint8_t* bufferOld;
+        uint8_t* bufferNew;
 
     public:
         GDEY075T7(int pin_ss, int pin_dc, int pin_rst, int pin_busy, int pin_power)
             : pin_power(pin_power)
         {
+            this->bufferOld = (uint8_t*)malloc(48000);
+            this->bufferNew = (uint8_t*)malloc(48000);
+            if (!this->bufferOld || !this->bufferNew) {
+                Serial.println("error allocating ram");
+            }
             pinMode(pin_power, OUTPUT);
             this->on();
 
@@ -24,21 +32,31 @@ namespace LaskaKit::Epaper {
             pinMode(pin_rst, OUTPUT);
             pinMode(pin_dc, OUTPUT);
             pinMode(pin_ss, OUTPUT);
-
             //SPI
             SPI.beginTransaction(SPISettings(10000000, MSBFIRST, SPI_MODE0)); 
-            SPI.begin (12, -1, 11, pin_ss);
+            SPI.begin (PIN_SCL, -1, PIN_SDA, pin_ss);
             this->setupBuffer();
+        }
+
+        ~GDEY075T7() {
+            SPI.end();
+            this->off();
+            if (this->bufferOld) {
+                free(this->bufferOld);
+            }
+            if (this->bufferNew) {
+                free(this->bufferNew);
+            }
         }
 
         uint width()
         {
-            return 800;
+            return this->WIDTH;
         }
 
         uint height()
         {
-            return 480;
+            return this->HEIGHT;
         }
 
         void on()
@@ -53,24 +71,41 @@ namespace LaskaKit::Epaper {
 
         void setupBuffer()
         {
-            uint8_t* buffer = this->buffer;
+            // for (int i = 0; i < 48000; i++) {
+            //     this->bufferOld[i] = 0xFF;
+            //     this->bufferNew[i] = 0x00;
+            // }
+
             for (int row = 0; row < 480; row++) {
-                for (int col = 0; col < 800; col++) {
-                    int index = row * 800 + col;
-                    
-                    if (row < 120) {
-                        // Top quarter: White
-                        buffer[index] = 0x11;
-                    } else if (row < 240) {
-                        // Second quarter: Light Gray
-                        buffer[index] = 0x10;
-                    } else if (row < 360) {
-                        // Third quarter: Dark Gray
-                        buffer[index] = 0x01;
-                    } else {
-                        // Bottom quarter: Black
-                        buffer[index] = 0x00;
+                for (int col = 0; col < 800; col += 8) {
+                    int index = (row * 800 + col) / 8;
+                    uint8_t tmpOld = 0;
+                    uint8_t tmpNew = 0;
+
+                    for (int bit = 0; bit < 8; bit++) {
+                        tmpOld <<= 1;
+                        tmpNew <<= 1;
+                        if (row < 120) {
+                            // Top quarter: White
+                            tmpOld |= 0x1;
+                            tmpNew |= 0x1;
+                        } else if (row < 240) {
+                            // Second quarter: Light Gray
+                            tmpOld |= 0x0;
+                            tmpNew |= 0x1;
+                        } else if (row < 360) {
+                            // Third quarter: Dark Gray
+                            tmpOld |= 0x1;
+                            tmpNew |= 0x0;
+                        } else {
+                            // Bottom quarter: Black
+                            tmpOld |= 0x0;
+                            tmpNew |= 0x0;
+                        }
                     }
+                    this->bufferOld[index] = tmpOld;
+                    this->bufferNew[index] = tmpNew;
+                    // printf("index: %lu\n", index);
                 }
             }
         }
@@ -83,55 +118,16 @@ namespace LaskaKit::Epaper {
         0x13|  01     00     01     00
                                         ****************/
         void writeBufferToScreen() {
-            uint8_t* buffer = this->buffer;
             // Old data (0x10)
             EPD_W21_WriteCMD(0x10);
             for (size_t i = 0; i < 48000; i++) {
-                uint8_t temp3 = 0;
-                
-                // Process 8 pixels per byte
-                for (int bit = 0; bit < 8; bit++) {
-                    uint32_t pixel_index = i * 8 + bit;
-                    
-                    // Check bounds
-                    if (pixel_index >= (480 * 800)) break;
-                    
-                    uint8_t pixel_value = buffer[pixel_index];
-                    
-                    temp3 <<= 1; // Shift previous bits left
-                    
-                    // Extract old data bit (bit 4 of your 2-bit format)
-                    if (pixel_value & 0x10) {
-                        temp3 |= 1; // Set bit if 0x10 or 0x11
-                    }
-                    // else bit remains 0 for 0x00 and 0x01
-                }
-                EPD_W21_WriteDATA(temp3);
+                EPD_W21_WriteDATA(this->bufferOld[i]);
             }
             
             // New data (0x13)
             EPD_W21_WriteCMD(0x13);
             for (size_t i = 0; i < 48000; i++) {
-                uint8_t temp3 = 0;
-                
-                // Process 8 pixels per byte
-                for (int bit = 0; bit < 8; bit++) {
-                    uint32_t pixel_index = i * 8 + bit;
-                    
-                    // Check bounds
-                    if (pixel_index >= (480 * 800)) break;
-                    
-                    uint8_t pixel_value = buffer[pixel_index];
-                    
-                    temp3 <<= 1; // Shift previous bits left
-                    
-                    // Extract new data bit (bit 0 of your 2-bit format)
-                    if (pixel_value & 0x01) {
-                        temp3 |= 1; // Set bit if 0x01 or 0x11
-                    }
-                    // else bit remains 0 for 0x00 and 0x10
-                }
-                EPD_W21_WriteDATA(temp3);
+                EPD_W21_WriteDATA(this->bufferNew[i]);
             }
             
             lut(); // Trigger display refresh
@@ -150,13 +146,22 @@ namespace LaskaKit::Epaper {
         void drawPixel(int x, int y, uint8_t color)
         {
             size_t pos = y * 800 + x;
-            this->buffer[pos] = color;
-        }
-
-        ~GDEY075T7()
-        {
-            SPI.end();
-            this->off();
+            size_t index = pos / 8;
+            size_t shift = 7 - (pos % 8);
+            // printf("%d %d %lu %lu\n", x, y, index, shift);
+            if (color & 0b10) {
+                this->bufferNew[index] &= ~(0xFF & (0b1 << shift)); 
+            } else {
+                this->bufferNew[index] |= (0b1 << shift);
+            }
+            
+            if (color & 0b01) {
+                this->bufferOld[index] &= ~(0xFF & (0b1 << shift)); 
+            } else {
+                this->bufferOld[index] |= (0b1 << shift);
+            }
+            // this->buffer[pos] = color;
+            // printf("%lu\n", shift);
         }
     };
 }
