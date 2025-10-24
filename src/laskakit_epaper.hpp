@@ -48,8 +48,8 @@ namespace LaskaKit::Epaper {
     public:
         virtual size_t width() = 0;
         virtual size_t height() = 0;
-        virtual void on() = 0;
-        virtual void off() = 0;
+        // virtual void on() = 0;
+        // virtual void off() = 0;
         virtual void fullUpdate() = 0;
         // virtual void setRotation(DisplayRotation rot) = 0;
         // virtual void fillScreen(int color) = 0;
