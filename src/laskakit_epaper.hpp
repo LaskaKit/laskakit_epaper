@@ -82,5 +82,3 @@ namespace LaskaKit::Epaper {
     //     }
     // };
 }
-
-#include <laskakit_GDEY075T7.hpp>

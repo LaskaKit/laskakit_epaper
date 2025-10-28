@@ -9,38 +9,33 @@ namespace LaskaKit::Epaper {
     class GDEY075T7 : public Display
     {
     private:
-        const uint8_t pin_power;
         static const uint WIDTH = 800;
         static const uint HEIGHT = 480;
         uint8_t* bufferOld;
         uint8_t* bufferNew;
 
     public:
-        GDEY075T7(int pin_ss, int pin_dc, int pin_rst, int pin_busy, int pin_power)
-            : pin_power(pin_power)
+        GDEY075T7()
         {
             this->bufferOld = (uint8_t*)malloc(48000);
             this->bufferNew = (uint8_t*)malloc(48000);
             if (!this->bufferOld || !this->bufferNew) {
                 Serial.println("error allocating ram");
             }
-            pinMode(pin_power, OUTPUT);
-            this->on();
 
             delay(500);
-            pinMode(pin_busy, INPUT);
-            pinMode(pin_rst, OUTPUT);
-            pinMode(pin_dc, OUTPUT);
-            pinMode(pin_ss, OUTPUT);
+            pinMode(PIN_EPD_BUSY, INPUT);
+            pinMode(PIN_EPD_RST, OUTPUT);
+            pinMode(PIN_EPD_DC, OUTPUT);
+            pinMode(PIN_EPD_CS, OUTPUT);
             //SPI
             SPI.beginTransaction(SPISettings(10000000, MSBFIRST, SPI_MODE0)); 
-            SPI.begin (PIN_SCL, -1, PIN_SDA, pin_ss);
+            SPI.begin (PIN_EPD_SCL, -1, PIN_EPD_SDA, PIN_EPD_CS);
             this->setupBuffer();
         }
 
         ~GDEY075T7() {
             SPI.end();
-            this->off();
             if (this->bufferOld) {
                 free(this->bufferOld);
             }
@@ -57,16 +52,6 @@ namespace LaskaKit::Epaper {
         uint height()
         {
             return this->HEIGHT;
-        }
-
-        void on()
-        {
-            digitalWrite(this->pin_power, HIGH);
-        }
-
-        void off()
-        {
-            digitalWrite(this->pin_power, LOW);
         }
 
         void setupBuffer()
@@ -150,13 +135,13 @@ namespace LaskaKit::Epaper {
             size_t shift = 7 - (pos % 8);
             // printf("%d %d %lu %lu\n", x, y, index, shift);
             if (color & 0b10) {
-                this->bufferNew[index] &= ~(0xFF & (0b1 << shift)); 
+                this->bufferNew[index] &= ~(0xFF & (0b1 << shift));
             } else {
                 this->bufferNew[index] |= (0b1 << shift);
             }
-            
+
             if (color & 0b01) {
-                this->bufferOld[index] &= ~(0xFF & (0b1 << shift)); 
+                this->bufferOld[index] &= ~(0xFF & (0b1 << shift));
             } else {
                 this->bufferOld[index] |= (0b1 << shift);
             }

@@ -41,14 +41,14 @@ public:
 
         // init pins
         pinMode(PIN_PWR, OUTPUT);
-        pinMode(PIN_CS, OUTPUT);
-        pinMode(PIN_DC, OUTPUT);
-        pinMode(PIN_RST, OUTPUT);
-        pinMode(PIN_BUSY, INPUT);
+        pinMode(PIN_EPD_CS, OUTPUT);
+        pinMode(PIN_EPD_DC, OUTPUT);
+        pinMode(PIN_EPD_RST, OUTPUT);
+        pinMode(PIN_EPD_BUSY, INPUT);
 
         // init SPI
         SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE0));
-        SPI.begin(PIN_SCL, -1, PIN_SDA, PIN_CS);
+        SPI.begin(PIN_EPD_SCL, -1, PIN_EPD_SDA, PIN_EPD_CS);
     }
 
     ~E2741FS081()
@@ -71,12 +71,12 @@ public:
         delay(100);
 
         // Reset display
-        digitalWrite(PIN_CS, HIGH);
-        digitalWrite(PIN_RST, HIGH);
+        digitalWrite(PIN_EPD_CS, HIGH);
+        digitalWrite(PIN_EPD_RST, HIGH);
         delay(20);
-        digitalWrite(PIN_RST, LOW);
+        digitalWrite(PIN_EPD_RST, LOW);
         delay(200);
-        digitalWrite(PIN_RST, HIGH);
+        digitalWrite(PIN_EPD_RST, HIGH);
         delay(50);
     }
 
@@ -177,16 +177,16 @@ public:
 public:
     void sendIndexData(uint8_t index, const uint8_t* data, uint32_t len)
     {
-        digitalWrite(PIN_DC, LOW);
-        digitalWrite(PIN_CS, LOW);
+        digitalWrite(PIN_EPD_DC, LOW);
+        digitalWrite(PIN_EPD_CS, LOW);
         SPI.transfer(index);
 
-        digitalWrite(PIN_DC, HIGH);
+        digitalWrite(PIN_EPD_DC, HIGH);
         for (int i = 0; i < len; i++) {
             SPI.transfer(data[i]);
         }
         // SPI.transferBytes(data, nullptr, len);
-        digitalWrite(PIN_CS, HIGH);
+        digitalWrite(PIN_EPD_CS, HIGH);
     }
 
     void cogInitialization()
@@ -308,7 +308,7 @@ public:
         Serial.println("=== Starting Display Refresh ===");
 
         // Wait for BUSY pin to go high
-        while(digitalRead(PIN_BUSY) != HIGH) {
+        while(digitalRead(PIN_EPD_BUSY) != HIGH) {
             delay(10);
         }
 
@@ -321,7 +321,7 @@ public:
 
         int start = millis();
         // Wait for refresh to complete
-        while(digitalRead(PIN_BUSY) != HIGH) {
+        while(digitalRead(PIN_EPD_BUSY) != HIGH) {
             delay(100);
         }
 
@@ -337,16 +337,16 @@ public:
         sendIndexData(0x09, data5, 1);
         delay(200);
 
-        while(digitalRead(PIN_BUSY) != HIGH) {
+        while(digitalRead(PIN_EPD_BUSY) != HIGH) {
             delay(10);
         }
 
         // Set all pins to low
-        digitalWrite(PIN_DC, LOW);
-        digitalWrite(PIN_CS, HIGH);
-        digitalWrite(PIN_SDA, LOW);
-        digitalWrite(PIN_SCL, LOW);
-        digitalWrite(PIN_RST, LOW);
+        digitalWrite(PIN_EPD_DC, LOW);
+        digitalWrite(PIN_EPD_CS, HIGH);
+        digitalWrite(PIN_EPD_SDA, LOW);
+        digitalWrite(PIN_EPD_SCL, LOW);
+        digitalWrite(PIN_EPD_RST, LOW);
         digitalWrite(PIN_PWR, LOW);
 
         Serial.println("Display power down complete.");

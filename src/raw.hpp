@@ -20,13 +20,13 @@
 // #define POWER 47
 
 #define MISO -1
-#define MOSI PIN_SDA
-#define SCK PIN_SCL
-#define CS PIN_CS
-#define DC PIN_DC
-#define RST PIN_RST
-#define BUSY PIN_BUSY
-#define POWER PIN_POWER
+#define MOSI PIN_EPD_SDA
+#define SCK PIN_EPS_SCL
+#define CS PIN_EPD_CS
+#define DC PIN_EPD_DC
+#define RST PIN_EPD_RST
+#define BUSY PIN_EPD_BUSY
+#define POWER PIN_PWR
 
 #define EPD_W21_CS_0 digitalWrite(CS, LOW)
 #define EPD_W21_CS_1 digitalWrite(CS, HIGH)
