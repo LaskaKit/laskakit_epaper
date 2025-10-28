@@ -14,6 +14,6 @@ namespace LaskaKit::Epaper
         uint width(){ return this->WIDTH; }
         uint height(){ return this->HEIGHT; }
         void fullUpdate(){}
-        void drawPixel(int x, int y, uint8_t color);
+        void drawPixel(int x, int y, uint8_t color){};
     };
 }
