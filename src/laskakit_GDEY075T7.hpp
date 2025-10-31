@@ -8,9 +8,10 @@
 namespace LaskaKit::Epaper {
     class GDEY075T7 : public Display
     {
+    public:
+        static constexpr uint WIDTH = 800;
+        static constexpr uint HEIGHT = 480;
     private:
-        static const uint WIDTH = 800;
-        static const uint HEIGHT = 480;
         uint8_t* bufferOld;
         uint8_t* bufferNew;
 
@@ -42,16 +43,6 @@ namespace LaskaKit::Epaper {
             if (this->bufferNew) {
                 free(this->bufferNew);
             }
-        }
-
-        uint width()
-        {
-            return this->WIDTH;
-        }
-
-        uint height()
-        {
-            return this->HEIGHT;
         }
 
         void setupBuffer()

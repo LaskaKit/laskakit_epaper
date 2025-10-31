@@ -786,19 +786,10 @@ namespace LaskaKit::Epaper
 {
   class GDEY1248F51 : public Display
   {
+  public:
+    static constexpr uint16_t WIDTH = 1304;
+    static constexpr uint16_t HEIGHT = 984;
   private:
-    static const uint16_t WIDTH = 1304;
-    static const uint16_t HEIGHT = 984;
-
-
-    // | Frame1 | Frame2 | Color |
-    // | ------ | ------ | ----- |
-    // |    1   |     1  |    ?? |
-    // |    1   |     0  | black |
-    // |    0   |     1  |   red |
-    // |    0   |     0  | white |
-
-  
     uint8_t* frame;
 
   public:
@@ -869,6 +860,7 @@ namespace LaskaKit::Epaper
         }
     }
 
+    // 00 - black, 01 - , 11 - red, 10
     void drawPixel(int x, int y, uint8_t color)
     {
         // size_t pos = y * 800 + x;

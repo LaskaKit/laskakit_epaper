@@ -14,9 +14,10 @@ namespace LaskaKit::Epaper {
 class E2741FS081 : public Display
 {
 public:
-    static const uint16_t WIDTH = 480;
-    static const uint16_t HEIGHT = 800;
+    static constexpr uint16_t WIDTH = 480;
+    static constexpr uint16_t HEIGHT = 800;
 
+private:
     // | Frame1 | Frame2 | Color |
     // | ------ | ------ | ----- |
     // |    1   |     1  |    ?? |
@@ -60,9 +61,6 @@ public:
             free(this->frame2);
         }
     }
-
-    size_t width() { return this->WIDTH; }
-    size_t height() { return this->HEIGHT; }
 
     void on()
     {
