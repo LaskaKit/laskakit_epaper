@@ -398,24 +398,24 @@ void EPD_init(void)
 	EPD_W21_Init();
 	lcd_chkstatus_M1();
 	lcd_chkstatus_M2();
-	
+
 	RSD_Set();//Additional code added to IC
-	
+
 	//temperature
 	EPD_W21_WriteCMD_M1(0x40);
 	lcd_chkstatus_M1();
 	driver_delay_xms(500);
 	temp=EPD_W21_ReadDATA_M1_temp();
 	printf("%d",temp);
-	EPD_W21_WriteCMD_M1(0xE3); //Exit Read  
-  
+	EPD_W21_WriteCMD_M1(0xE3); //Exit Read
+
 	EPD_W21_WriteCMD_ALL(0xe6);
   EPD_W21_WriteDATA_ALL(temp);
-	
+
 	EPD_W21_WriteCMD_ALL(0xe0);
 	EPD_W21_WriteDATA_ALL(0x03);
   delay(20); // <- necessary
-	
+
 	EPD_W21_WriteCMD_ALL(0xA5);
 	lcd_chkstatus_M1();
 	lcd_chkstatus_M2();
@@ -425,7 +425,7 @@ void EPD_init(void)
 	driver_delay_xms(10);
 	lcd_chkstatus_M1();
 	lcd_chkstatus_M2();
-  
+
 	EPD_W21_WriteCMD_M1(0x00);			//panel setting
 	EPD_W21_WriteDATA_M1(0x0f);		//KW-3f   KWR-2F	BWROTP 0f	BWOTP 1f
 	EPD_W21_WriteDATA_M1(0x29);
@@ -443,12 +443,12 @@ void EPD_init(void)
 	EPD_W21_WriteCMD_ALL(0x01);
 	EPD_W21_WriteDATA_ALL(0x07);
   EPD_W21_WriteDATA_ALL(0x00);
-	
+
 	EPD_W21_WriteCMD_ALL(0x03);
 	EPD_W21_WriteDATA_ALL(0x10);
   EPD_W21_WriteDATA_ALL(0x54);
 	EPD_W21_WriteDATA_ALL(0x44);
-	
+
 	EPD_W21_WriteCMD_M1(0x06);         //booster soft start
 	EPD_W21_WriteDATA_M1 (0xC0);		//A
 	EPD_W21_WriteDATA_M1 (0xC0);		//B
@@ -469,8 +469,8 @@ void EPD_init(void)
 	EPD_W21_WriteDATA_S2 (0xC0);		//B
 	EPD_W21_WriteDATA_S2 (0xC0);		//C
 	EPD_W21_WriteDATA_S2 (0xC0);
-	
-	
+
+
 	EPD_W21_WriteCMD_M1(0x30);  //panel setting
 	EPD_W21_WriteDATA_M1(0x08);
 	EPD_W21_WriteCMD_S1(0x30);  //panel setting
@@ -488,9 +488,9 @@ void EPD_init(void)
 	EPD_W21_WriteDATA_M2(0X9E);
 	EPD_W21_WriteCMD_S2(0x82);  //panel setting
 	EPD_W21_WriteDATA_S2(0X9E);
-		
 
-	EPD_W21_WriteCMD_ALL(0x50);			//Vcom and data interval setting
+
+  EPD_W21_WriteCMD_ALL(0x50);			//Vcom and data interval setting
 	EPD_W21_WriteDATA_ALL(0x37);	  //Border KW
 
 	EPD_W21_WriteCMD_ALL(0x60);//TCON
@@ -520,7 +520,7 @@ void EPD_init(void)
 
 
   EPD_W21_WriteCMD_ALL(0xE7);			//DUSPI
-	EPD_W21_WriteDATA_ALL(0x1C);		
+	EPD_W21_WriteDATA_ALL(0x1C);
 
 	EPD_W21_WriteCMD_ALL(0xE3);
 	EPD_W21_WriteDATA_ALL(0x77);
@@ -529,41 +529,41 @@ void EPD_init(void)
 	EPD_W21_WriteDATA_ALL(0x01);
 
 	EPD_W21_WriteCMD_ALL(0xFF);			//DUSPI
-	EPD_W21_WriteDATA_ALL(0xA5);		
+	EPD_W21_WriteDATA_ALL(0xA5);
 
 	EPD_W21_WriteCMD_ALL(0xEF);			//DUSPI
-	EPD_W21_WriteDATA_ALL(1);		
-	EPD_W21_WriteDATA_ALL(50);		
-  
-	EPD_W21_WriteDATA_ALL(5);		
-	EPD_W21_WriteDATA_ALL(26);	
-  
-	EPD_W21_WriteDATA_ALL(10);		
-	EPD_W21_WriteDATA_ALL(26);	
-  
-	EPD_W21_WriteDATA_ALL(20);		
-	EPD_W21_WriteDATA_ALL(13);	
+	EPD_W21_WriteDATA_ALL(1);
+	EPD_W21_WriteDATA_ALL(50);
+
+	EPD_W21_WriteDATA_ALL(5);
+	EPD_W21_WriteDATA_ALL(26);
+
+	EPD_W21_WriteDATA_ALL(10);
+	EPD_W21_WriteDATA_ALL(26);
+
+	EPD_W21_WriteDATA_ALL(20);
+	EPD_W21_WriteDATA_ALL(13);
 
 	EPD_W21_WriteCMD_ALL(0XDC);			//DUSPI
-	EPD_W21_WriteDATA_ALL(0X01);		
+	EPD_W21_WriteDATA_ALL(0X01);
 
 	EPD_W21_WriteCMD_ALL(0XDD);			//DUSPI
-	EPD_W21_WriteDATA_ALL(1);		
+	EPD_W21_WriteDATA_ALL(1);
 
-	EPD_W21_WriteCMD_ALL(0XDE);			//DUSPI	
+	EPD_W21_WriteCMD_ALL(0XDE);			//DUSPI
   EPD_W21_WriteDATA_ALL(3);
-	
+
 	EPD_W21_WriteCMD_ALL(0XF9);			//DUSPI
-	EPD_W21_WriteDATA_ALL(0X01);		
+	EPD_W21_WriteDATA_ALL(0X01);
 
 	EPD_W21_WriteCMD_ALL(0XDF);			//DUSPI
-	EPD_W21_WriteDATA_ALL(0X16);		
+	EPD_W21_WriteDATA_ALL(0X16);
 
 	EPD_W21_WriteCMD_ALL(0XE8);			//DUSPI
-	EPD_W21_WriteDATA_ALL(0X07);		
+	EPD_W21_WriteDATA_ALL(0X07);
 
 	EPD_W21_WriteCMD_ALL(0XFF);			//DUSPI
-	EPD_W21_WriteDATA_ALL(0XE3);		
+	EPD_W21_WriteDATA_ALL(0XE3);
 }
 
 void EPD_update(void)
@@ -780,9 +780,6 @@ void lcd_chkstatus_S2(void)
     ;
 }
 
-
-#include "pic.h"
-
 namespace LaskaKit::Epaper
 {
   class GDEY1248F51 : public Display
@@ -821,16 +818,94 @@ namespace LaskaKit::Epaper
       pinMode(EPD_W21_BUSY_M2, INPUT);
       pinMode(EPD_W21_BUSY_S1, INPUT);
       pinMode(EPD_W21_BUSY_S2, INPUT);
-      this->setupBuffer();
+      // this->setupBuffer();
       // this->fullUpdate();
 
-      free(this->frame);
-      this->frame = (uint8_t*)gImage_1;
-      this->fullUpdate();
+      // Serial.println("White");
+      // EPD_init();
+      // Display_All_White();
+      // EPD_sleep();
+      // delay(1000);
+
+      // Serial.println("Black");
+      // EPD_init();
+      // Display_All_Black();
+      // EPD_sleep();
+      // delay(1000);
+
+      // Serial.println("Red");
+      // EPD_init();
+      // Display_All_Red();
+      // EPD_sleep();
+      // delay(1000);
+
+      // Serial.println("Yellow");
+      // EPD_init();
+      // Display_All_Yellow();
+      // EPD_sleep();
+      // delay(1000);
+
+      // Serial.println("Picture");
+      // EPD_init();
+      // PIC_display(gImage_1);
+      // EPD_sleep();
+      // delay(1000);
+
+      // Serial.println("Horizontal lines");
+      // this->horizontalLines();
+      // this->fullUpdate();
+      // delay(1000);
+
+      // Serial.println("Vertical lines");
+      // this->verticalLines();
+      // this->fullUpdate();
+      // delay(1000);
+      // free(this->frame);
+      // this->frame = (uint8_t*)gImage_1;
+      // this->fullUpdate();
     }
 
-    size_t width() { return this->WIDTH; };
-    size_t height() { return this->HEIGHT; };
+    void horizontalLines()
+    {
+      for (int row = 0; row < this->HEIGHT; row++) {
+            for (int col = 0; col < this->WIDTH; col += 4) {
+                int index = (row * this->WIDTH + col) / 4;
+                uint8_t tmpFrame = 0;
+
+                for (int bit = 0; bit < 4; bit++) {
+                    tmpFrame <<= 2;
+                    if (row % 4 == 0) {
+                        tmpFrame |= 0x3;
+                    } else if (row % 3 == 0) {
+                        tmpFrame |= 0x0;
+                    } else if (row % 2 == 0) {
+                        tmpFrame |= 0x2;
+                    } else {
+                        tmpFrame |= 0x1;
+                    }
+                }
+                this->frame[index] = tmpFrame;
+                // Serial.printf("%x\n", tmpFrame);
+            }
+        }
+    }
+
+    void verticalLines()
+    {
+      for (int row = 0; row < this->HEIGHT; row++) {
+        for (int col = 0; col < this->WIDTH; col++) {
+          if (col % 4 == 0) {
+              this->drawPixel(col, row, 0x3);
+          } else if (col % 3 == 0) {
+              this->drawPixel(col, row, 0x0);
+          } else if (col % 2 == 0) {
+              this->drawPixel(col, row, 0x2);
+          } else {
+              this->drawPixel(col, row, 0x1);
+          }
+        }
+      }
+    }
 
     void setupBuffer()
     {
@@ -864,7 +939,6 @@ namespace LaskaKit::Epaper
     // 00 - black, 01 - , 11 - red, 10
     void drawPixel(int x, int y, uint8_t color)
     {
-        // size_t pos = y * 800 + x;
         size_t pos = y * this->WIDTH + x;
         size_t index = pos / 4;
         size_t shift = 3 - (pos % 4);
@@ -895,7 +969,7 @@ namespace LaskaKit::Epaper
           // Serial.printf("M1 %x\n", this->frame[row + column * 326]);
           EPD_W21_WriteDATA_M1(this->frame[row + column * 326]);
         }
-        
+
         ////////S1 part//////////656*492
         EPD_W21_WriteCMD_S1(0x10);
         for (column = 492; column < 984; column++)
@@ -904,7 +978,7 @@ namespace LaskaKit::Epaper
           // Serial.printf("S1 %x\n", this->frame[row + column * 326]);
           EPD_W21_WriteDATA_S1(this->frame[row + column * 326]);
         }
-        
+
         ////////M2 part//////////656*492
         EPD_W21_WriteCMD_M2(0x10);
         for (column = 0; column < 492; column++)
@@ -942,7 +1016,7 @@ namespace LaskaKit::Epaper
 // 		Display_All_Black();//To Display one image using full screen update.
 // 		EPD_sleep();//Enter the sleep mode and please do not delete it, otherwise it will reduce the lifespan of the screen.
 // 		delay(5000); //Delay for 5s.
-		
+
 // 		EPD_init(); //Full screen update initialization.
 // 		Display_All_Yellow();//To Display one image using full screen update.
 // 		EPD_sleep();//Enter the sleep mode and please do not delete it, otherwise it will reduce the lifespan of the screen.
