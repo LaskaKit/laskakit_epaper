@@ -8,6 +8,15 @@
 
 namespace LaskaKit::Epaper {
 
+struct EPDBusSettings {
+    int8_t sck;
+    int8_t mosi;
+    int8_t cs;
+    int8_t dc;
+    int8_t busy;
+    int8_t reset;
+};
+
 class EPDBus {
 private:
     int8_t cs;
@@ -19,6 +28,10 @@ private:
 
     EPDBus(int8_t cs, int8_t dc, int8_t busy, int8_t reset)
         : cs(cs), dc(dc), busy(busy), reset(reset)
+    {}
+
+    EPDBus(const EPDBusSettings& settings)
+        : cs(settings.cs), dc(settings.dc), busy(settings.busy), reset(settings.reset)
     {}
 
 public:
@@ -37,6 +50,11 @@ public:
         instance->dc = dc;
         instance->busy = busy;
         instance->reset = reset;
+    }
+
+    static void Begin(const EPDBusSettings& settings)
+    {
+        EPDBus::Begin(settings.sck, settings.mosi, settings.cs, settings.dc, settings.busy, settings.reset);
     }
 
     static void End()
