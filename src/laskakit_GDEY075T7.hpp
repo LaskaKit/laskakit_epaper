@@ -5,7 +5,7 @@
 #include "epdbus.hpp"
 
 namespace LaskaKit::Epaper {
-    class GDEY075T7 : public Display
+    class GDEY075T7
     {
     public:
         static constexpr uint WIDTH = 800;
@@ -21,8 +21,16 @@ namespace LaskaKit::Epaper {
         static const uint8_t lut_bb[42];
 
     public:
-        GDEY075T7()
+        GDEY075T7(const EPDBusSettings& epdBusSettings)
         {
+            EPDBus::Begin(
+                epdBusSettings.sck,
+                epdBusSettings.mosi,
+                epdBusSettings.cs,
+                epdBusSettings.dc,
+                epdBusSettings.busy,
+                epdBusSettings.reset
+            );
             this->bufferOld = (uint8_t*)malloc(48000);
             this->bufferNew = (uint8_t*)malloc(48000);
             if (!this->bufferOld || !this->bufferNew) {
@@ -130,7 +138,7 @@ namespace LaskaKit::Epaper {
             EPDBus::EndTransaction();
         }
 
-        void drawPixel(int x, int y, uint8_t color)
+        void drawPixel(int16_t x, int16_t y, uint32_t color)
         {
             size_t pos = y * 800 + x;
             size_t index = pos / 8;
