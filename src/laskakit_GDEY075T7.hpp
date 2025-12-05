@@ -1,7 +1,6 @@
 #pragma once
 
 #include "laskakit_epaper.hpp"
-
 #include "epdbus.hpp"
 
 namespace LaskaKit::Epaper {
@@ -10,6 +9,8 @@ namespace LaskaKit::Epaper {
     public:
         static constexpr uint WIDTH = 800;
         static constexpr uint HEIGHT = 480;
+        static constexpr ColorType COLORTYPE = ColorType::G4;
+        static constexpr const char* NAME = "GDEY075T7";
     private:
         uint8_t* bufferOld;
         uint8_t* bufferNew;
@@ -31,13 +32,11 @@ namespace LaskaKit::Epaper {
                 epdBusSettings.busy,
                 epdBusSettings.reset
             );
-            this->bufferOld = (uint8_t*)malloc(48000);
-            this->bufferNew = (uint8_t*)malloc(48000);
+            this->bufferOld = (uint8_t*)calloc(48000, 1);
+            this->bufferNew = (uint8_t*)calloc(48000, 1);
             if (!this->bufferOld || !this->bufferNew) {
                 Serial.println("error allocating ram");
             }
-
-            this->setupBuffer();
         }
 
         ~GDEY075T7() {
@@ -49,54 +48,6 @@ namespace LaskaKit::Epaper {
             }
         }
 
-        void setupBuffer()
-        {
-            // for (int i = 0; i < 48000; i++) {
-            //     this->bufferOld[i] = 0xFF;
-            //     this->bufferNew[i] = 0x00;
-            // }
-
-            for (int row = 0; row < 480; row++) {
-                for (int col = 0; col < 800; col += 8) {
-                    int index = (row * 800 + col) / 8;
-                    uint8_t tmpOld = 0;
-                    uint8_t tmpNew = 0;
-
-                    for (int bit = 0; bit < 8; bit++) {
-                        tmpOld <<= 1;
-                        tmpNew <<= 1;
-                        if (row < 120) {
-                            // Top quarter: White
-                            tmpOld |= 0x1;
-                            tmpNew |= 0x1;
-                        } else if (row < 240) {
-                            // Second quarter: Light Gray
-                            tmpOld |= 0x0;
-                            tmpNew |= 0x1;
-                        } else if (row < 360) {
-                            // Third quarter: Dark Gray
-                            tmpOld |= 0x1;
-                            tmpNew |= 0x0;
-                        } else {
-                            // Bottom quarter: Black
-                            tmpOld |= 0x0;
-                            tmpNew |= 0x0;
-                        }
-                    }
-                    this->bufferOld[index] = tmpOld;
-                    this->bufferNew[index] = tmpNew;
-                    // printf("index: %lu\n", index);
-                }
-            }
-        }
-
-
-        //4 grayscale demo function
-        /********Color display description
-             white  gray1  gray2  black
-        0x10|  01     01     00     00
-        0x13|  01     00     01     00
-        ****************/
         void writeBufferToScreen() {
             EPDBus::_WriteCmdData(0x10, this->bufferOld, 48000);
             EPDBus::_WriteCmdData(0x13, this->bufferNew, 48000);
@@ -138,25 +89,38 @@ namespace LaskaKit::Epaper {
             EPDBus::EndTransaction();
         }
 
-        void drawPixel(int16_t x, int16_t y, uint32_t color)
+        /* Color display description
+             white  lightgray  darkgray  black
+        0x13|  0        1         0        1  | new
+        0x10|  0        0         1        1  | old
+        */
+        void drawPixel(int16_t x, int16_t y, uint16_t color)
         {
-            size_t pos = y * 800 + x;
+            size_t pos = y * WIDTH + x;
             size_t index = pos / 8;
             size_t shift = 7 - (pos % 8);
+            uint8_t mask = 0b1 << shift;
             // printf("%d %d %lu %lu\n", x, y, index, shift);
-            if (color & 0b10) {
-                this->bufferNew[index] &= ~(0xFF & (0b1 << shift));
-            } else {
-                this->bufferNew[index] |= (0b1 << shift);
+
+            if (color == RGB565::WHITE) {
+                this->bufferNew[index] &= ~mask;
+                this->bufferOld[index] &= ~mask;
             }
 
-            if (color & 0b01) {
-                this->bufferOld[index] &= ~(0xFF & (0b1 << shift));
-            } else {
-                this->bufferOld[index] |= (0b1 << shift);
+            if (color == RGB565::BLACK) {
+                this->bufferNew[index] |= mask;
+                this->bufferOld[index] |= mask;
             }
-            // this->buffer[pos] = color;
-            // printf("%lu\n", shift);
+            
+            if (color == RGB565::LIGHT_GRAY) {
+                this->bufferNew[index] |= mask;
+                this->bufferOld[index] &= ~mask;
+            }
+
+            if (color == RGB565::DARK_GRAY) {
+                this->bufferNew[index] &= ~mask;
+                this->bufferOld[index] |= mask;
+            }
         }
 
     private:
