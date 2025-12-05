@@ -1,7 +1,8 @@
-
+#pragma once
 
 #include <GxEPD2_4C.h>
 
+#include "laskakit_epaper.hpp"
 #include "epdbus.hpp"
 
 #define ENABLE_GxEPD2_GFX 0
@@ -11,8 +12,9 @@ namespace LaskaKit::Epaper {
     public:
         static constexpr size_t WIDTH = 960;
         static constexpr size_t HEIGHT = 640;
+        static constexpr ColorType COLORTYPE = ColorType::C4;
+        static constexpr const char* NAME = "GDEM102F91";
     private:
-        // GxEPD2_4C<GxEPD2_1160c_GDEY116F51, GxEPD2_1160c_GDEY116F51::HEIGHT / 2> display;
         GxEPD2_4C<GxEPD2_1160c_GDEY116F51, GxEPD2_1160c_GDEY116F51::HEIGHT> display;
 
     public:
@@ -33,7 +35,7 @@ namespace LaskaKit::Epaper {
             display.display();
         }
 
-        void drawPixel(int16_t x, int16_t y, uint32_t color)
+        void drawPixel(int16_t x, int16_t y, uint16_t color)
         {
             display.drawPixel(x, y, color);
         }
