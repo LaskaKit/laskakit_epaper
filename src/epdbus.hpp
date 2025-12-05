@@ -126,7 +126,12 @@ public:
 
     static void BusyWait()
     {
-        while (digitalRead(instance->busy)) { delay(1); }
+        while (digitalRead(instance->busy)) { delay(10); }
+    }
+
+    static void BusyWaitInv()
+    {
+        while (!digitalRead(instance->busy)) { delay(10); }
     }
 
     static void BusyPoll(uint8_t cmd)
