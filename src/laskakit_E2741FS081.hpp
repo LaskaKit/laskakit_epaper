@@ -7,34 +7,37 @@
 #include <SPI.h>
 
 #include "laskakit_epaper.hpp"
+#include "epdbus.hpp"
 
 
 namespace LaskaKit::Epaper {
 
-class E2741FS081 : public Display
+class E2741FS081
 {
 public:
     static constexpr uint16_t WIDTH = 480;
     static constexpr uint16_t HEIGHT = 800;
+    static constexpr ColorType COLORTYPE = ColorType::RBW;
+    static constexpr const char* NAME = "E2741FS081";
 
 private:
-    // | Frame1 | Frame2 | Color |
-    // | ------ | ------ | ----- |
-    // |    1   |     1  |    ?? |
-    // |    1   |     0  | black |
-    // |    0   |     1  |   red |
-    // |    0   |     0  | white |
     uint8_t* frame1;
     uint8_t* frame2;
 
 
 public:
-    E2741FS081()
+    E2741FS081(const EPDBusSettings& settings)
     {
         // Allocate the buffers
         const size_t frameSize = this->WIDTH * this->HEIGHT / 8;
         this->frame1 = (uint8_t*)calloc(frameSize, sizeof(uint8_t));
         this->frame2 = (uint8_t*)calloc(frameSize, sizeof(uint8_t));
+        if (this->frame1 == nullptr) {
+            Serial.println("malloc frame1 failed");
+        }
+        if (this->frame2 == nullptr) {
+            Serial.println("malloc frame2 failed");
+        }
 
         // clear
         memset(frame1, 0x00, 48000);
@@ -48,7 +51,6 @@ public:
         pinMode(PIN_EPD_BUSY, INPUT);
 
         // init SPI
-        SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE0));
         SPI.begin(PIN_EPD_SCL, -1, PIN_EPD_SDA, PIN_EPD_CS);
     }
 
@@ -66,21 +68,21 @@ public:
     {
         // Power on
         digitalWrite(PIN_PWR, HIGH);
-        delay(100);
+        delay(500);
 
         // Reset display
-        digitalWrite(PIN_EPD_CS, HIGH);
         digitalWrite(PIN_EPD_RST, HIGH);
         delay(20);
         digitalWrite(PIN_EPD_RST, LOW);
         delay(200);
         digitalWrite(PIN_EPD_RST, HIGH);
         delay(50);
+        digitalWrite(PIN_EPD_CS, HIGH);
     }
 
     void setupBuffer()
     {
-        
+
         for (int row = 0; row < this->HEIGHT; row++) {
             for (int col = 0; col < this->WIDTH; col += 8) {
                 int index = (row * this->WIDTH + col) / 8;
@@ -110,30 +112,61 @@ public:
         }
     }
 
-    void drawPixel(int x, int y, uint8_t color)
+    // | Frame1 | Frame2 | Color |
+    // | ------ | ------ | ----- |
+    // |    1   |     1  |    ?? |
+    // |    1   |     0  | black |
+    // |    0   |     1  |   red |
+    // |    0   |     0  | white |
+    void drawPixel(int16_t x, int16_t y, uint16_t color)
     {
         // size_t pos = y * 800 + x;
         size_t pos = y * this->WIDTH + x;
         size_t index = pos / 8;
         size_t shift = 7 - (pos % 8);
-        // printf("%d %d %lu %lu\n", x, y, index, shift);
-        if (color & 0b10) {
-            this->frame1[index] |= (0b1 << shift);
-        } else {
-            this->frame1[index] &= ~(0xFF & (0b1 << shift));
+        uint8_t mask = 0b1 << shift;
+
+        if (index > 47950) {
+            // printf("index: %lu\n", index);
+            return;
+        }
+        // printf("%d %d %lu %lu %u\n", x, y, index, shift, color);
+
+        if (color == RGB565::WHITE) {
+            this->frame1[index] &= ~mask;
+            this->frame2[index] &= ~mask;
         }
 
-        if (color & 0b01) {
-            this->frame2[index] |= (0b1 << shift);
-        } else {
-            this->frame2[index] &= ~(0xFF & (0b1 << shift));
+        if (color == RGB565::BLACK) {
+            this->frame1[index] |= mask;
+            this->frame2[index] &= ~mask;
         }
+
+        if (color == RGB565::RED) {
+            this->frame1[index] &= ~mask;
+            this->frame2[index] |= mask;
+        }
+
+        // if (color & 0b10) {
+        //     this->frame1[index] |= (0b1 << shift);
+        // } else {
+        //     this->frame1[index] &= ~(0xFF & (0b1 << shift));
+        // }
+
+        // if (color & 0b01) {
+        //     this->frame2[index] |= (0b1 << shift);
+        // } else {
+        //     this->frame2[index] &= ~(0xFF & (0b1 << shift));
+        // }
         // this->buffer[pos] = color;
         // printf("%lu\n", shift);
     }
 
     void fullUpdate()
     {
+        // MAX SPI freq = 5 MHz (from datasheet)
+        SPI.beginTransaction(SPISettings(100000, MSBFIRST, SPI_MODE0));
+
         this->on();
         // Send hardcoded configuration values from working example
         uint8_t data1[] = {0x00, 0x3b, 0x00, 0x00, 0x1f, 0x03};
@@ -170,6 +203,8 @@ public:
         this->displayRefreshAndPowerDown();
 
         Serial.println("=== Complete Display Update Finished ===\n");
+
+        SPI.endTransaction();
     }
 
 public:
@@ -179,7 +214,9 @@ public:
         digitalWrite(PIN_EPD_CS, LOW);
         SPI.transfer(index);
 
+        digitalWrite(PIN_EPD_CS, HIGH);
         digitalWrite(PIN_EPD_DC, HIGH);
+        digitalWrite(PIN_EPD_CS, LOW);
         for (int i = 0; i < len; i++) {
             SPI.transfer(data[i]);
         }
