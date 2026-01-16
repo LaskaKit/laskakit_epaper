@@ -1,10 +1,11 @@
 #pragma once
 
+#include "epdbus.hpp"
 #include "laskakit_epaper.hpp"
 
 namespace LaskaKit::Epaper
 {
-    class None : public Display
+    class None
     {
     public:
         static constexpr uint WIDTH = 0;
@@ -12,7 +13,7 @@ namespace LaskaKit::Epaper
         static constexpr ColorType COLORTYPE = ColorType::BW;
         static constexpr const char* NAME = "NONE";
 
-        None(){}
+        None(const EPDBusSettings& settings){}
         void fullUpdate(){}
         void drawPixel(int x, int y, uint8_t color){};
     };

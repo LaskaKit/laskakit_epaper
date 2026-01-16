@@ -1,20 +1,23 @@
 #pragma once
 
-#include <laskakit_epaper.hpp>
-#include <raw2.hpp>
+#include "laskakit_epaper.hpp"
+#include "epdbus.hpp"
+#include "raw2.hpp"
 
 namespace LaskaKit::Epaper {
-    class GDEY075Z08 : public Display
+    class GDEY075Z08
     {
     public:
         static constexpr uint WIDTH = 800;
         static constexpr uint HEIGHT = 480;
+        static constexpr ColorType COLORTYPE = ColorType::RBW;
+        static constexpr const char* NAME = "GDEY075Z08";
     private:
         uint8_t* bufferBW;  // Black/White plane (0x10)
         uint8_t* bufferRW;  // Red/White plane (0x13)
 
     public:
-        GDEY075Z08()
+        GDEY075Z08(const EPDBusSettings& settings)
         {
             this->bufferBW = (uint8_t*)malloc(48000);
             this->bufferRW = (uint8_t*)malloc(48000);

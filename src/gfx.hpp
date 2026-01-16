@@ -1,9 +1,12 @@
 #pragma once
 
-#include "qrcode.h"
 #include <Adafruit_GFX.h>
+#include "qrcode.h"
+#include "laskakit_epaper.hpp"
+#include "zdecoder.h"
 
 namespace LaskaKit::Epaper {
+
 
 template <class T>
 class GFX : public Adafruit_GFX {
@@ -15,20 +18,20 @@ public:
 
   void drawPixel(int16_t x, int16_t y, uint16_t color) {
     int16_t temp;
-    switch (rotation) {
+    switch (this->rotation) {
     case 1: // 90° clockwise
       temp = x;
-      x = WIDTH - 1 - y;
+      x = T::WIDTH - 1 - y;
       y = temp;
       break;
     case 2: // 180°
-      x = WIDTH - 1 - x;
-      y = HEIGHT - 1 - y;
+      x = T::WIDTH - 1 - x;
+      y = T::HEIGHT - 1 - y;
       break;
     case 3: // 270° clockwise
       temp = x;
       x = y;
-      y = HEIGHT - 1 - temp;
+      y = T::HEIGHT - 1 - temp;
       break;
     }
     display->drawPixel(x, y, color);
@@ -44,13 +47,43 @@ public:
     for (int y = 0; y < qrcode.size; y++) {
       for (int x = 0; x < qrcode.size; x++) {
         if (qrcode_getModule(&qrcode, x, y)) {
-          fillRect(pos_x + x * scale, pos_y + y * scale, scale, scale, fg);
+          this->fillRect(pos_x + x * scale, pos_y + y * scale, scale, scale, fg);
         } else {
-          fillRect(pos_x + x * scale, pos_y + y * scale, scale, scale, bg);
+          this->fillRect(pos_x + x * scale, pos_y + y * scale, scale, scale, bg);
         }
       }
     }
   }
+
+  void fullUpdate() {
+    this->display->fullUpdate();
+  }
+
+  void _drawColorSwatch(const uint16_t* colorLut, uint8_t numColors, uint16_t posX, uint16_t swatchWidth = 20) {
+      uint16_t swatchPartHeight = this->height() / numColors;
+      for (size_t i = 0; i < 4; i++) {
+          uint16_t posY = swatchPartHeight * i;
+          this->fillRect(posX, posY, swatchWidth, swatchPartHeight, colorLut[i]);
+      }
+      this->fillRect(posX, 0, 2, this->height(), colorLut[1]);
+      this->fillRect(posX + swatchWidth -2, 0, 2, this->height(), colorLut[1]);
+      this->fillRect(posX, 0, swatchWidth, 2, colorLut[1]);
+      this->fillRect(posX, this->height() - 2, swatchWidth, 2, colorLut[1]);
+  }
+
+  void drawColorSwatch()
+  {
+      switch (T::COLORTYPE) {
+          case ColorType::G4:
+              _drawColorSwatch(z2GrayscaleToRGB565Lut, 4, this->width() - 20);
+              break;
+          case ColorType::C4:
+          case ColorType::RBW:
+              _drawColorSwatch(z2ColorToRGB565Lut, 4, this->width() - 20);
+              break;
+        }
+  }
 };
+
 
 }; // namespace LaskaKit::Epaper

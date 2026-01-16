@@ -10,7 +10,8 @@
 
 #pragma once
 
-#include <laskakit_epaper.hpp>
+#include "laskakit_epaper.hpp"
+#include "epdbus.hpp"
 
 // IO settings
 int EPD_W21_SDA = 11;
@@ -782,16 +783,18 @@ void lcd_chkstatus_S2(void)
 
 namespace LaskaKit::Epaper
 {
-  class GDEY1248F51 : public Display
+  class GDEY1248F51
   {
   public:
     static constexpr uint16_t WIDTH = 1304;
     static constexpr uint16_t HEIGHT = 984;
+    static constexpr ColorType COLORTYPE = ColorType::C4;
+    static constexpr const char* NAME = "GDEY1248F51";
   private:
     uint8_t* frame;
 
   public:
-    GDEY1248F51()
+    GDEY1248F51(const EPDBusSettings& epdBusSettings)
     {
       // Allocate the buffers
       const size_t frameSize = this->WIDTH * this->HEIGHT / 4;
