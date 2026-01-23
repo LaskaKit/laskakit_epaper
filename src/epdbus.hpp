@@ -41,7 +41,7 @@ public:
             return;
         }
         instance = new EPDBus(cs, dc, busy, reset);
-        SPI.begin(sck, -1, mosi);
+        SPI.begin(sck, -1, mosi, cs);
         pinMode(cs, OUTPUT);
         pinMode(dc, OUTPUT);
         pinMode(busy, INPUT);
@@ -66,9 +66,9 @@ public:
         delete instance;
     }
 
-    static void BeginTransaction()
+    static void BeginTransaction(uint32_t speed = 16000000)
     {
-        SPI.beginTransaction(SPISettings(10000000, MSBFIRST, SPI_MODE0));
+        SPI.beginTransaction(SPISettings(speed, MSBFIRST, SPI_MODE0));
     }
 
     static void EndTransaction()
@@ -82,6 +82,11 @@ public:
         delay(20);  // at least 10ms
         digitalWrite(instance->reset, HIGH);
         delay(20);
+    }
+
+    static void Reset(uint8_t val)
+    {
+        digitalWrite(instance->reset, val);
     }
 
     static void _WriteData(const uint8_t* data, size_t len)
@@ -148,4 +153,3 @@ public:
 EPDBus* EPDBus::instance = nullptr;  // definition
 
 };  // namespace LaskaKit::Epaper
-
