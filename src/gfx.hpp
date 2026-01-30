@@ -41,9 +41,8 @@ public:
                       int16_t fg = 0xFFFF, int16_t bg = 0x0000,
                       uint8_t scale = 4) {
     static QRCode qrcode;
-    uint8_t qrCodeData[qrcode_getBufferSize(3)];
-    qrcode_initText(&qrcode, qrCodeData, 3, ECC_LOW, text);
-
+    uint8_t qrCodeData[qrcode_getBufferSize(2)];
+    qrcode_initText(&qrcode, qrCodeData, 2, ECC_LOW, text);
     for (int y = 0; y < qrcode.size; y++) {
       for (int x = 0; x < qrcode.size; x++) {
         if (qrcode_getModule(&qrcode, x, y)) {
