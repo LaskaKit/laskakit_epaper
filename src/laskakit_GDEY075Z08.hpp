@@ -13,37 +13,24 @@ namespace LaskaKit::Epaper {
         static constexpr ColorType COLORTYPE = ColorType::RBW;
         static constexpr const char* NAME = "GDEY075Z08";
     private:
-        uint8_t* bufferBW;  // Black/White plane (0x10)
-        uint8_t* bufferRW;  // Red/White plane (0x13)
+        static uint8_t bufferBW[48000];  // Black/White plane (0x10)
+        static uint8_t bufferRW[48000];  // Red/White plane (0x13)
 
     public:
         GDEY075Z08(const EPDBusSettings& settings)
         {
-            this->bufferBW = (uint8_t*)malloc(48000);
-            this->bufferRW = (uint8_t*)malloc(48000);
-            if (!this->bufferBW || !this->bufferRW) {
-                Serial.println("error allocating ram");
-            }
-
             delay(500);
             pinMode(PIN_EPD_BUSY, INPUT);
             pinMode(PIN_EPD_RST, OUTPUT);
             pinMode(PIN_EPD_DC, OUTPUT);
             pinMode(PIN_EPD_CS, OUTPUT);
             //SPI
-            SPI.beginTransaction(SPISettings(10000000, MSBFIRST, SPI_MODE0));
             SPI.begin (PIN_EPD_SCL, -1, PIN_EPD_SDA, PIN_EPD_CS);
-            this->setupBuffer();
+            // this->setupBuffer();
         }
 
         ~GDEY075Z08() {
             SPI.end();
-            if (this->bufferBW) {
-                free(this->bufferBW);
-            }
-            if (this->bufferRW) {
-                free(this->bufferRW);
-            }
         }
 
         void setupBuffer()
@@ -150,34 +137,41 @@ namespace LaskaKit::Epaper {
 
         void fullUpdate()
         {
+            SPI.beginTransaction(SPISettings(10000000, MSBFIRST, SPI_MODE0));
+
             EPD_Init_RBW();
             this->writeBufferToScreen();
             EPD_W21_WriteCMD(0x12);     // DISPLAY REFRESH
             driver_delay_xms(1);        // The delay here is necessary, 200uS at least
             lcd_chkstatus();
             EPD_sleep();
+
+            SPI.endTransaction();
         }
 
-        void drawPixel(int x, int y, uint8_t color)
+        void drawPixel(int16_t x, int16_t y, uint16_t color)
         {
             size_t pos = y * 800 + x;
             size_t index = pos / 8;
-            size_t bit = 7 - (pos % 8);
+            size_t shift = 7 - (pos % 8);
+            uint8_t mask = 0b1 << shift;
 
             // Color encoding: 0b[BW][RW]
             // White=0b10, Black=0b00, Red=0b01
 
-            if (color & 0b10) {  // BW plane bit
-                this->bufferBW[index] |= (1 << bit);
-            } else {
-                this->bufferBW[index] &= ~(1 << bit);
-            }
-
-            if (color & 0b01) {  // RW plane bit
-                this->bufferRW[index] |= (1 << bit);
-            } else {
-                this->bufferRW[index] &= ~(1 << bit);
+            if (color == RGB565::WHITE) {
+                this->bufferBW[index] &= ~mask;
+                this->bufferRW[index] &= ~mask;
+            } else if (color == RGB565::BLACK) {
+                this->bufferBW[index] |= mask;
+                this->bufferRW[index] &= ~mask;
+            } else if (color == RGB565::RED) {
+                this->bufferBW[index] &= ~mask;
+                this->bufferRW[index] |= mask;
             }
         }
     };
+
+    uint8_t GDEY075Z08::bufferBW[48000];  // Black/White plane (0x10)
+    uint8_t GDEY075Z08::bufferRW[48000];  // Red/White plane (0x13)
 }
