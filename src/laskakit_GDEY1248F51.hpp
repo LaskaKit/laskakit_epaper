@@ -940,17 +940,28 @@ namespace LaskaKit::Epaper
     }
 
     // 00 - black, 01 - , 11 - red, 10
-    void drawPixel(int x, int y, uint8_t color)
+    void drawPixel(int16_t x, int16_t y, uint16_t color)
     {
         size_t pos = y * this->WIDTH + x;
         size_t index = pos / 4;
         size_t shift = 3 - (pos % 4);
-        // printf("%d %d %lu %lu\n", x, y, index, shift);
 
         // reset the pixel
         this->frame[index] &= ~(0b11 << (shift * 2));
+
+        uint8_t tmp = 0b00;
+        if (color == RGB565::WHITE) {
+            tmp = 0b01;
+        } else if (color == RGB565::BLACK) {
+            tmp = 0b00;
+        } else if (color == RGB565::RED) {
+            tmp = 0b11;
+        } else if (color == RGB565::YELLOW) {
+            tmp = 0b10;
+        }
+
         // set the pixel
-        this->frame[index] |= color << (shift * 2);
+        this->frame[index] |= tmp << (shift * 2);
     }
 
     void fullUpdate()
