@@ -78,8 +78,12 @@ public:
               break;
           case ColorType::C4:
           case ColorType::RBW:
+          case ColorType::YBW:
               _drawColorSwatch(z2ColorToRGB565Lut, 4, this->width() - 20);
               break;
+        case ColorType::BW:
+            _drawColorSwatch(z2GrayscaleToRGB565Lut, 2, this->width() - 20);
+            break;
         }
   }
 };
