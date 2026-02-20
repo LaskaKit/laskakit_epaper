@@ -10,25 +10,25 @@
 
 namespace LaskaKit::Epaper {
 
-class GDEY0213B74 {
+class GDEY029T71H {
 public:
-    static constexpr size_t WIDTH = 122;
-    static constexpr size_t HEIGHT = 250;
+    static constexpr size_t WIDTH = 168;
+    static constexpr size_t HEIGHT = 384;
     static constexpr ColorType COLORTYPE = ColorType::BW;
-    static constexpr const char* NAME = "GDEY0213B74";
+    static constexpr const char* NAME = "GDEY029T71H";
 
 private:
-    GxEPD2_BW<GxEPD2_213_GDEY0213B74, GxEPD2_213_GDEY0213B74::HEIGHT> display;
+    GxEPD2_BW<GxEPD2_290_GDEY029T71H, GxEPD2_290_GDEY029T71H::HEIGHT> display;
 
 public:
-    GDEY0213B74(const EPDBusSettings& settings)
-        : display(GxEPD2_213_GDEY0213B74(settings.cs, settings.dc, settings.reset, settings.busy))
+    GDEY029T71H(const EPDBusSettings& settings)
+        : display(GxEPD2_290_GDEY029T71H(settings.cs, settings.dc, settings.reset, settings.busy))
     {
         EPDBus::Begin(settings);
         display.init();
     }
 
-    ~GDEY0213B74()
+    ~GDEY029T71H()
     {
         EPDBus::End();
     }
