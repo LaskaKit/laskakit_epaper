@@ -1,8 +1,5 @@
 #pragma once
 
-#include <GxEPD2.h>
-#include <GxEPD2_BW.h>
-
 #include "epdbus.hpp"
 #include "laskakit_epaper.hpp"
 
