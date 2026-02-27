@@ -1,5 +1,6 @@
 #pragma once
 
+#include "esp32-hal-gpio.h"
 #include <Arduino.h>
 #include <SPI.h>
 #include <vector>
@@ -15,6 +16,7 @@ struct EPDBusSettings {
     int8_t dc;
     int8_t busy;
     int8_t reset;
+    int8_t pwr;
 };
 
 class EPDBus {
@@ -23,24 +25,32 @@ private:
     int8_t dc;
     int8_t busy;
     int8_t reset;
+    int8_t pwr;
 
     static EPDBus* instance;
 
-    EPDBus(int8_t cs, int8_t dc, int8_t busy, int8_t reset)
-        : cs(cs), dc(dc), busy(busy), reset(reset)
+    EPDBus(int8_t cs, int8_t dc, int8_t busy, int8_t reset, int8_t pwr)
+        : cs(cs), dc(dc), busy(busy), reset(reset), pwr(pwr)
     {}
 
     EPDBus(const EPDBusSettings& settings)
-        : cs(settings.cs), dc(settings.dc), busy(settings.busy), reset(settings.reset)
+        : cs(settings.cs), dc(settings.dc), busy(settings.busy), reset(settings.reset), pwr(settings.pwr)
     {}
 
 public:
-    static void Begin(int8_t sck, int8_t mosi, int8_t cs, int8_t dc, int8_t busy, int8_t reset)
+    static void Begin(int8_t sck, int8_t mosi, int8_t cs, int8_t dc, int8_t busy, int8_t reset, int8_t pwr)
     {
         if (instance != nullptr) {
             return;
         }
-        instance = new EPDBus(cs, dc, busy, reset);
+        if (pwr != -1) {
+            pinMode(pwr, OUTPUT);
+            digitalWrite(pwr, HIGH);
+            delay(500);
+        }
+
+
+        instance = new EPDBus(cs, dc, busy, reset, pwr);
         SPI.begin(sck, -1, mosi, cs);
         pinMode(cs, OUTPUT);
         pinMode(dc, OUTPUT);
@@ -54,7 +64,7 @@ public:
 
     static void Begin(const EPDBusSettings& settings)
     {
-        EPDBus::Begin(settings.sck, settings.mosi, settings.cs, settings.dc, settings.busy, settings.reset);
+        EPDBus::Begin(settings.sck, settings.mosi, settings.cs, settings.dc, settings.busy, settings.reset, settings.pwr);
     }
 
     static void End()
