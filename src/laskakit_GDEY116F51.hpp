@@ -13,7 +13,7 @@ namespace LaskaKit::Epaper {
         static constexpr size_t WIDTH = 960;
         static constexpr size_t HEIGHT = 640;
         static constexpr ColorType COLORTYPE = ColorType::C4;
-        static constexpr const char* NAME = "GDEM116F51";
+        static constexpr const char* NAME = "GDEY116F51";
     private:
         GxEPD2_4C<GxEPD2_1160c_GDEY116F51, GxEPD2_1160c_GDEY116F51::HEIGHT> display;
 
