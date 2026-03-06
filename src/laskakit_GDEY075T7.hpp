@@ -24,14 +24,7 @@ namespace LaskaKit::Epaper {
     public:
         GDEY075T7(const EPDBusSettings& epdBusSettings)
         {
-            EPDBus::Begin(
-                epdBusSettings.sck,
-                epdBusSettings.mosi,
-                epdBusSettings.cs,
-                epdBusSettings.dc,
-                epdBusSettings.busy,
-                epdBusSettings.reset
-            );
+            EPDBus::Begin(epdBusSettings);
             this->bufferOld = (uint8_t*)calloc(48000, 1);
             this->bufferNew = (uint8_t*)calloc(48000, 1);
             if (!this->bufferOld || !this->bufferNew) {
@@ -111,7 +104,7 @@ namespace LaskaKit::Epaper {
                 this->bufferNew[index] |= mask;
                 this->bufferOld[index] |= mask;
             }
-            
+
             if (color == RGB565::LIGHT_GRAY) {
                 this->bufferNew[index] |= mask;
                 this->bufferOld[index] &= ~mask;
