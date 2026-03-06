@@ -22,21 +22,12 @@ public:
 private:
     uint8_t* frame1;
     uint8_t* frame2;
-    const EPDBusSettings epdBusSettings;
 
 
 public:
     E2741FS081(const EPDBusSettings& settings)
-        : epdBusSettings(settings)
     {
-        EPDBus::Begin(
-            epdBusSettings.sck,
-            epdBusSettings.mosi,
-            epdBusSettings.cs,
-            epdBusSettings.dc,
-            epdBusSettings.busy,
-            epdBusSettings.reset
-        );
+        EPDBus::Begin(settings);
 
         // Allocate the buffers
         const size_t frameSize = this->WIDTH * this->HEIGHT / 8;
