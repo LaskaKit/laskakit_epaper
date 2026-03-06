@@ -7,8 +7,8 @@ namespace LaskaKit::Epaper {
 
 class GDEQ0426T82 {
 public:
-    static constexpr size_t WIDTH = 480;
-    static constexpr size_t HEIGHT = 800;
+    static constexpr size_t WIDTH = 800;
+    static constexpr size_t HEIGHT = 480;
     static constexpr ColorType COLORTYPE = ColorType::BW;
     static constexpr const char* NAME = "GDEQ0426T82";
 
@@ -46,10 +46,10 @@ public:
 
         EPDBus::WriteCmdData(0x18, {0x80});
         EPDBus::WriteCmdData(0x0C, {0xAE, 0xC7, 0xC3, 0xC0, 0x80});
-        EPDBus::WriteCmdData(0x01, {(WIDTH - 1) % 256, (WIDTH - 1) / 256, 0x02});
+        EPDBus::WriteCmdData(0x01, {(HEIGHT - 1) % 256, (HEIGHT - 1) / 256, 0x02});
         EPDBus::WriteCmdData(0x3C, {0x01});
         EPDBus::WriteCmdData(0x11, {0x03});
-        EPDBus::WriteCmdData(0x44, {0x00, 0x00, (HEIGHT - 1) % 256, (HEIGHT - 1) / 256});
+        EPDBus::WriteCmdData(0x44, {0x00, 0x00, (WIDTH - 1) % 256, (WIDTH - 1) / 256});
         EPDBus::WriteCmdData(0x4E, {0x00, 0x00});  // ram x address count
         EPDBus::WriteCmdData(0x4F, {0x00, 0x00});  // ram y address count
         EPDBus::BusyWait();
@@ -65,7 +65,7 @@ public:
 
     void drawPixel(int16_t x, int16_t y, uint16_t color)
     {
-        size_t pos = x * HEIGHT + y;
+        size_t pos = y * WIDTH + (WIDTH - 1 - x);
         size_t index = pos / 8;
         size_t shift = pos % 8;
         uint8_t mask = 0b1 << (7 - shift);
