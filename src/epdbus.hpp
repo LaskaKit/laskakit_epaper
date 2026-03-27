@@ -1,6 +1,9 @@
 #pragma once
 
+#include "driver/gpio.h"
 #include "esp32-hal-gpio.h"
+#include "esp_sleep.h"
+#include "hal/gpio_types.h"
 #include <Arduino.h>
 #include <SPI.h>
 #include <vector>
@@ -141,12 +144,25 @@ public:
 
     static void BusyWait()
     {
-        while (digitalRead(instance->busy)) { delay(10); }
+        gpio_wakeup_enable((gpio_num_t)instance->busy, GPIO_INTR_LOW_LEVEL);
+        esp_sleep_enable_gpio_wakeup();
+
+        while (digitalRead(instance->busy)) {
+            esp_light_sleep_start();
+        }
+        gpio_wakeup_disable((gpio_num_t)instance->busy);
     }
 
     static void BusyWaitInv()
     {
-        while (!digitalRead(instance->busy)) { delay(10); }
+        gpio_wakeup_enable((gpio_num_t)instance->busy, GPIO_INTR_HIGH_LEVEL);
+        esp_sleep_enable_gpio_wakeup();
+
+        while (!digitalRead(instance->busy)) {
+            esp_light_sleep_start();
+        }
+
+        gpio_wakeup_disable((gpio_num_t)instance->busy);
     }
 
     static void BusyPoll(uint8_t cmd)
