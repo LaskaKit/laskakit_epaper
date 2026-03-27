@@ -22,6 +22,7 @@ namespace LaskaKit::Epaper {
             : display(GxEPD2_290c_GDEY029F51H(settings.cs, settings.dc, settings.reset, settings.busy))
         {
             EPDBus::Begin(settings);
+            display.epd2.setBusyCallback(busyCallbackLightSleep, nullptr);
             display.init();
         }
 

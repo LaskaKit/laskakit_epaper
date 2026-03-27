@@ -25,6 +25,7 @@ public:
         : display(GxEPD2_420c_GDEY0420F51(settings.cs, settings.dc, settings.reset, settings.busy))
     {
         EPDBus::Begin(settings);
+        display.epd2.setBusyCallback(busyCallbackLightSleep, nullptr);
         display.init();
     }
 
