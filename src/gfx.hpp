@@ -60,7 +60,7 @@ public:
 
   void _drawColorSwatch(const uint16_t* colorLut, uint8_t numColors, uint16_t posX, uint16_t swatchWidth = 20) {
       uint16_t swatchPartHeight = this->height() / numColors;
-      for (size_t i = 0; i < 4; i++) {
+      for (size_t i = 0; i < numColors; i++) {
           uint16_t posY = swatchPartHeight * i;
           this->fillRect(posX, posY, swatchWidth, swatchPartHeight, colorLut[i]);
       }
@@ -73,18 +73,21 @@ public:
   void drawColorSwatch()
   {
       switch (T::COLORTYPE) {
-          case ColorType::G4:
-              _drawColorSwatch(z2GrayscaleToRGB565Lut, 4, this->width() - 20);
-              break;
-          case ColorType::C4:
-          case ColorType::RBW:
-          case ColorType::YBW:
-              _drawColorSwatch(z2ColorToRGB565Lut, 4, this->width() - 20);
-              break;
+        case ColorType::G4:
+            _drawColorSwatch(z2GrayscaleToRGB565Lut, 4, this->width() - 20);
+            break;
+        case ColorType::G8:
+            _drawColorSwatch(z3GrayscaleToRGB565Lut, 8, this->width() - 80, 80);
+            break;
+        case ColorType::C4:
+        case ColorType::RBW:
+        case ColorType::YBW:
+            _drawColorSwatch(z2ColorToRGB565Lut, 4, this->width() - 20);
+            break;
         case ColorType::BW:
             _drawColorSwatch(z2GrayscaleToRGB565Lut, 2, this->width() - 20);
             break;
-        }
+      }
   }
 };
 
