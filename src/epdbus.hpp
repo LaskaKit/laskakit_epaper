@@ -30,6 +30,8 @@ private:
     int8_t reset;
     int8_t pwr;
 
+    bool _sleep = true;
+
     static EPDBus* instance;
 
     EPDBus(int8_t cs, int8_t dc, int8_t busy, int8_t reset, int8_t pwr)
@@ -77,6 +79,11 @@ public:
         }
         SPI.end();
         delete instance;
+    }
+
+    static void UseSleep(bool option)
+    {
+        instance->_sleep = option;
     }
 
     static void BeginTransaction(uint32_t speed = 16000000)
@@ -148,7 +155,9 @@ public:
         esp_sleep_enable_gpio_wakeup();
 
         while (digitalRead(instance->busy)) {
-            esp_light_sleep_start();
+            if (instance->_sleep) {
+                esp_light_sleep_start();
+            }
         }
         gpio_wakeup_disable((gpio_num_t)instance->busy);
     }
@@ -159,9 +168,10 @@ public:
         esp_sleep_enable_gpio_wakeup();
 
         while (!digitalRead(instance->busy)) {
-            esp_light_sleep_start();
+            if (instance->_sleep) {
+                esp_light_sleep_start();
+            }
         }
-
         gpio_wakeup_disable((gpio_num_t)instance->busy);
     }
 
