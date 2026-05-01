@@ -153,9 +153,12 @@ public:
     {
         gpio_wakeup_enable((gpio_num_t)instance->busy, GPIO_INTR_LOW_LEVEL);
         esp_sleep_enable_gpio_wakeup();
+        esp_sleep_enable_timer_wakeup(30 * 1000000); // 10s safety net
 
+        log_v("EPDBus: BusyWait");
         while (digitalRead(instance->busy)) {
             if (instance->_sleep) {
+                log_v("EPDBus: BusyWait(sleep)");
                 esp_light_sleep_start();
             }
         }
@@ -166,9 +169,12 @@ public:
     {
         gpio_wakeup_enable((gpio_num_t)instance->busy, GPIO_INTR_HIGH_LEVEL);
         esp_sleep_enable_gpio_wakeup();
+        esp_sleep_enable_timer_wakeup(30 * 1000000); // 10s safety net
 
+        log_v("EPDBus: BusyWaitInv");
         while (!digitalRead(instance->busy)) {
             if (instance->_sleep) {
+                log_v("EPDBus: BusyWaitInv(sleep)");
                 esp_light_sleep_start();
             }
         }
