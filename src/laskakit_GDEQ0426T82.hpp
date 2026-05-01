@@ -65,24 +65,22 @@ public:
     void fullUpdate()
     {
         EPDBus::BeginTransaction();
-        EPDBus::Reset();
-        EPDBus::DelayMs(20);
-        EPDBus::BusyWait();
+        EPDBus::Reset(); // hw reset
 
         EPDBus::WriteCmd(0x12); // sw reset
-        EPDBus::DelayMs(10);
         EPDBus::BusyWait();
 
-        EPDBus::WriteCmdData(0x0C, {0xAE, 0xC7, 0xC3, 0xC0, 0x80});
+        EPDBus::WriteCmdData(0x0C, {0xAE, 0xC7, 0xC3, 0xC0, 0x80}); // level 2 booster sort start
         EPDBus::WriteCmdData(0x01, {(HEIGHT - 1) % 256, (HEIGHT - 1) / 256, 0x02});
         EPDBus::WriteCmdData(0x3C, {0x00}); // border: LUT0 (white)
-        EPDBus::WriteCmdData(0x18, {0x80}); // internal temperature sensor
-        EPDBus::WriteCmdData(0x11, {0x03});
+
+        // set window bounds
         EPDBus::WriteCmdData(0x44, {0x00, 0x00, (WIDTH - 1) % 256, (WIDTH - 1) / 256});
         EPDBus::WriteCmdData(0x45, {0x00, 0x00, (HEIGHT - 1) % 256, (HEIGHT - 1) / 256});
+
+        // reset RAM X Y counters
         EPDBus::WriteCmdData(0x4E, {0x00, 0x00});
         EPDBus::WriteCmdData(0x4F, {0x00, 0x00});
-        EPDBus::BusyWait();
 
         // load 4-gray LUT
         EPDBus::_WriteCmdData(0x32, lut_4G, 105);
@@ -95,12 +93,13 @@ public:
         EPDBus::_WriteCmdData(0x26, this->bufferGray, this->frameBufferSize);
 
         // 4-gray update
-        EPDBus::WriteCmdData(0x21, {0x00, 0x00});
-        EPDBus::WriteCmdData(0x22, {0xC7});
-        EPDBus::WriteCmd(0x20);
+        EPDBus::WriteCmdData(0x21, {0x00}); // both planes normal
+        EPDBus::WriteCmdData(0x22, {0xC7}); // set full refresh
+        EPDBus::WriteCmd(0x20); // master activation
         EPDBus::BusyWait();
 
-        EPDBus::WriteCmdData(0x10, {0x01});
+        // deep sleep
+        EPDBus::WriteCmdData(0x10, {0x03});
         EPDBus::EndTransaction();
     }
 
