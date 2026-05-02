@@ -23,15 +23,15 @@ private:
 public:
     GDEY0213B74(const EPDBusSettings& settings)
         : display(GxEPD2_213_GDEY0213B74(settings.cs, settings.dc, settings.reset, settings.busy))
-    {
-        EPDBus::Begin(settings);
-        display.epd2.setBusyCallback(busyCallbackLightSleep, nullptr);
-        display.init();
-    }
+    {}
 
-    ~GDEY0213B74()
+    bool init()
     {
-        EPDBus::End();
+        display.epd2.setBusyCallback([](const void*) {
+            EPDBus::BusyWaitInv();
+        }, nullptr);
+        display.init();
+        return true;
     }
 
     void fullUpdate()

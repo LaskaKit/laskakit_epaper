@@ -18,17 +18,19 @@ private:
 
 public:
     GDEQ0583T81(const EPDBusSettings& settings)
+    {}
+
+    bool init()
     {
-        EPDBus::Begin(settings);
         this->bufferBW = (uint8_t*)calloc(this->frameBufferSize, 1);
         if (!this->bufferBW) {
-            Serial.println("error allocating ram");
+            return false;
         }
+        return true;
     }
 
     ~GDEQ0583T81()
     {
-        EPDBus::End();
         if (this->bufferBW) {
             free(this->bufferBW);
         }

@@ -23,13 +23,21 @@ namespace LaskaKit::Epaper {
 
     public:
         GDEY075T7(const EPDBusSettings& epdBusSettings)
+        {}
+
+        bool init()
         {
-            EPDBus::Begin(epdBusSettings);
             this->bufferOld = (uint8_t*)calloc(48000, 1);
-            this->bufferNew = (uint8_t*)calloc(48000, 1);
-            if (!this->bufferOld || !this->bufferNew) {
-                Serial.println("error allocating ram");
+            if (!this->bufferOld) {
+                return false;
             }
+            this->bufferNew = (uint8_t*)calloc(48000, 1);
+            if (!this->bufferNew) {
+                free(this->bufferOld);
+                this->bufferOld = nullptr;
+                return false;
+            }
+            return true;
         }
 
         ~GDEY075T7() {

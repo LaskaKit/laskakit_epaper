@@ -17,6 +17,9 @@ namespace LaskaKit::Epaper {
 
     public:
         GDEM0154F51H(const EPDBusSettings& settings)
+        {}
+
+        bool init()
         {
             epd.setPanelType(EP154YR_200x200);
             epd.initIO(
@@ -27,8 +30,9 @@ namespace LaskaKit::Epaper {
                 settings.mosi,
                 settings.sck
             );
-            epd.setLightSleep(true);
+            epd.setLightSleep(true); // TODO: does it work with AP mode?
             epd.allocBuffer(true);
+            return true;
         }
 
         void fullUpdate()

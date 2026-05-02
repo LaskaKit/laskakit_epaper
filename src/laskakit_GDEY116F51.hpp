@@ -20,15 +20,15 @@ namespace LaskaKit::Epaper {
     public:
         GDEY116F51(const EPDBusSettings& settings)
             : display(GxEPD2_1160c_GDEY116F51(settings.cs, settings.dc, settings.reset, settings.busy))
-        {
-            EPDBus::Begin(settings);
-            display.epd2.setBusyCallback(busyCallbackLightSleep, nullptr);
-            display.init();
-        }
+        {}
 
-        ~GDEY116F51()
+        bool init()
         {
-            EPDBus::End();
+            display.epd2.setBusyCallback([](const void*) {
+                EPDBus::BusyWaitInv();
+            }, nullptr);
+            display.init();
+            return true;
         }
 
         void fullUpdate()

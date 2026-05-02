@@ -7,7 +7,6 @@
 
 namespace LaskaKit::Epaper {
 
-
     class GDEP133UT3 {
     public:
         static constexpr size_t WIDTH = 1600;
@@ -16,32 +15,26 @@ namespace LaskaKit::Epaper {
         static constexpr const char* NAME = "GDEP133UT3";
 
     private:
-        bool initialized = false;
         static FASTEPD epaper;
 
-        void init()
+    public:
+        GDEP133UT3(const EPDBusSettings& settings) {}
+
+        bool init()
         {
             epaper.initPanel(BB_PANEL_EPDIY_V7);
             epaper.setPanelSize(1600, 1200);
             epaper.setMode(BB_MODE_4BPP);
-            this->initialized = true;
+            return true;
         }
-    public:
-        GDEP133UT3(const EPDBusSettings& settings) {}
 
         void fullUpdate()
         {
-            if (!initialized) {
-                init();
-            }
             epaper.fullUpdate();
         }
+
         void drawPixel(int16_t x, int16_t y, uint16_t color)
         {
-            if (!initialized) {
-                init();
-            }
-
             uint8_t col = 0xF;
             if (color == RGB565::WHITE) {
                 col = 0xF;

@@ -14,6 +14,7 @@ namespace LaskaKit::Epaper
         static constexpr const char* NAME = "NONE";
 
         None(const EPDBusSettings& settings){}
+        bool init(){return true;}
         void fullUpdate(){}
         void drawPixel(int x, int y, uint8_t color){};
     };

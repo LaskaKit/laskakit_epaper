@@ -20,15 +20,15 @@ namespace LaskaKit::Epaper {
     public:
         GDEM102T91(const EPDBusSettings& settings)
             : display(GxEPD2_1020_GDEM102T91(settings.cs, settings.dc, settings.reset, settings.busy))
-        {
-            EPDBus::Begin(settings);
-            display.epd2.setBusyCallback(busyCallbackLightSleep, nullptr);
-            display.init();
-        }
+        {}
 
-        ~GDEM102T91()
+        bool init()
         {
-            EPDBus::End();
+            display.epd2.setBusyCallback([](const void* data) {
+                EPDBus::BusyWaitInv();
+            }, nullptr);
+            display.init();
+            return true;
         }
 
         void fullUpdate()

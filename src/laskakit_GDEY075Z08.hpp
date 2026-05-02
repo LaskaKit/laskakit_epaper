@@ -18,6 +18,9 @@ namespace LaskaKit::Epaper {
 
     public:
         GDEY075Z08(const EPDBusSettings& settings)
+        {}
+
+        bool init()
         {
             delay(500);
             pinMode(PIN_EPD_BUSY, INPUT);
@@ -27,6 +30,7 @@ namespace LaskaKit::Epaper {
             //SPI
             SPI.begin (PIN_EPD_SCL, -1, PIN_EPD_SDA, PIN_EPD_CS);
             // this->setupBuffer();
+            return true;
         }
 
         ~GDEY075Z08() {

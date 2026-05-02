@@ -3,7 +3,6 @@
 #include "epdbus.hpp"
 #include "laskakit_epaper.hpp"
 
-#define ENABLE_GxEPD2_GFX 0
 
 namespace LaskaKit::Epaper {
 
@@ -16,20 +15,21 @@ public:
 
 private:
     static constexpr size_t frameBufferSize = WIDTH * HEIGHT / 4;
-    uint8_t* frameBuffer;
+    uint8_t* frameBuffer = nullptr;
 public:
     GDEY0583F41(const EPDBusSettings& settings)
+    {}
+
+    bool init()
     {
-        EPDBus::Begin(settings);
         this->frameBuffer = (uint8_t*)calloc(this->frameBufferSize, 1);
         if (!this->frameBuffer) {
-            Serial.println("error allocating ram");
+            return false;
         }
     }
 
     ~GDEY0583F41()
     {
-        EPDBus::End();
         if (this->frameBuffer) {
             free(this->frameBuffer);
         }

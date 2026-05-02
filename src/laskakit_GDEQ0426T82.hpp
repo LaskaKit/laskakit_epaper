@@ -14,8 +14,8 @@ public:
 
 private:
     static constexpr size_t frameBufferSize = WIDTH * HEIGHT / 8;
-    uint8_t* bufferBW;   // RAM 0x24
-    uint8_t* bufferGray; // RAM 0x26
+    uint8_t* bufferBW = nullptr;   // RAM 0x24
+    uint8_t* bufferGray = nullptr; // RAM 0x26
 
     // 4-gray LUT - from GxEPD2_4G reference
     static constexpr uint8_t lut_4G[] = {
@@ -41,19 +41,25 @@ private:
     };
 
 public:
-    GDEQ0426T82(const EPDBusSettings& settings)
+    GDEQ0426T82(const EPDBusSettings& settings) {
+        // do nothing, keep the api consistent
+    }
+
+    bool init()
     {
-        EPDBus::Begin(settings);
         this->bufferBW = (uint8_t*)calloc(this->frameBufferSize, 1);
+        if (!this->bufferBW) { return false; }
         this->bufferGray = (uint8_t*)calloc(this->frameBufferSize, 1);
-        if (!this->bufferBW || !this->bufferGray) {
-            Serial.println("error allocating ram");
+        if (!this->bufferGray) {
+            free(this->bufferBW);
+            this->bufferBW = nullptr;
+            return false;
         }
+        return true;
     }
 
     ~GDEQ0426T82()
     {
-        EPDBus::End();
         if (this->bufferBW) {
             free(this->bufferBW);
         }

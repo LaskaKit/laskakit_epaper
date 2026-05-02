@@ -57,13 +57,21 @@ private:
 
 public:
     GDEY042T81(const EPDBusSettings& settings)
+    {}
+
+    bool init()
     {
-        EPDBus::Begin(settings);
         this->bufferBW = (uint8_t*)calloc(this->frameBufferSize, 1);
-        this->bufferGray = (uint8_t*)calloc(this->frameBufferSize, 1);
-        if (!this->bufferBW || !this->bufferGray) {
-            Serial.println("error allocating ram");
+        if (!this->bufferBW) {
+            return false;
         }
+        this->bufferGray = (uint8_t*)calloc(this->frameBufferSize, 1);
+        if (!this->bufferGray) {
+            free(this->bufferBW);
+            this->bufferBW = nullptr;
+            return false;
+        }
+        return true;
     }
 
     ~GDEY042T81()

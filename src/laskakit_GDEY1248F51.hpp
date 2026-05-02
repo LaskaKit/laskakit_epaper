@@ -795,11 +795,16 @@ namespace LaskaKit::Epaper
 
   public:
     GDEY1248F51(const EPDBusSettings& epdBusSettings)
+    {}
+
+    bool init()
     {
-      // Allocate the buffers
+    // Allocate the buffers
       const size_t frameSize = this->WIDTH * this->HEIGHT / 4;
       this->frame = (uint8_t*)calloc(frameSize, sizeof(uint8_t));
-
+      if (!this->frame) {
+          return false;
+      }
       // turn on power to display
       pinMode(47, OUTPUT);
       digitalWrite(47, HIGH); // turn the LED on (HIGH is the voltage level)
@@ -821,51 +826,8 @@ namespace LaskaKit::Epaper
       pinMode(EPD_W21_BUSY_M2, INPUT);
       pinMode(EPD_W21_BUSY_S1, INPUT);
       pinMode(EPD_W21_BUSY_S2, INPUT);
-      // this->setupBuffer();
-      // this->fullUpdate();
 
-      // Serial.println("White");
-      // EPD_init();
-      // Display_All_White();
-      // EPD_sleep();
-      // delay(1000);
-
-      // Serial.println("Black");
-      // EPD_init();
-      // Display_All_Black();
-      // EPD_sleep();
-      // delay(1000);
-
-      // Serial.println("Red");
-      // EPD_init();
-      // Display_All_Red();
-      // EPD_sleep();
-      // delay(1000);
-
-      // Serial.println("Yellow");
-      // EPD_init();
-      // Display_All_Yellow();
-      // EPD_sleep();
-      // delay(1000);
-
-      // Serial.println("Picture");
-      // EPD_init();
-      // PIC_display(gImage_1);
-      // EPD_sleep();
-      // delay(1000);
-
-      // Serial.println("Horizontal lines");
-      // this->horizontalLines();
-      // this->fullUpdate();
-      // delay(1000);
-
-      // Serial.println("Vertical lines");
-      // this->verticalLines();
-      // this->fullUpdate();
-      // delay(1000);
-      // free(this->frame);
-      // this->frame = (uint8_t*)gImage_1;
-      // this->fullUpdate();
+      return true;
     }
 
     void horizontalLines()
@@ -1013,39 +975,3 @@ namespace LaskaKit::Epaper
     }
   };
 }
-
-
-// void loop()
-// {
-
-// #if 1 // Full screen update demostration.
-//   /************Full display*******************/
-//   EPD_init();            // Full screen update initialization.
-//   PIC_display(gImage_1); // To Display one image using full screen update.
-//   EPD_sleep();           // Enter the sleep mode and please do not delete it, otherwise it will reduce the lifespan of the screen.
-//   delay(5000);           // Delay for 5s.
-// #if 0                    // Demonstration of Display 4 colors, to enable this feature, please change 0 to 1.
-// 	 /************Full display*******************/
-// 		EPD_init(); //Full screen update initialization.
-// 		Display_All_Black();//To Display one image using full screen update.
-// 		EPD_sleep();//Enter the sleep mode and please do not delete it, otherwise it will reduce the lifespan of the screen.
-// 		delay(5000); //Delay for 5s.
-
-// 		EPD_init(); //Full screen update initialization.
-// 		Display_All_Yellow();//To Display one image using full screen update.
-// 		EPD_sleep();//Enter the sleep mode and please do not delete it, otherwise it will reduce the lifespan of the screen.
-// 		delay(5000); //Delay for 5s.
-
-// 		EPD_init(); //Full screen update initialization.
-// 		Display_All_Red();//To Display one image using full screen update.
-// 		EPD_sleep();//Enter the sleep mode and please do not delete it, otherwise it will reduce the lifespan of the screen.
-// 		delay(5000); //Delay for 5s.
-// #endif
-//   EPD_init();          // Full screen update initialization.
-//   Display_All_White(); // Clear screen function.
-//   EPD_sleep();         // Enter the sleep mode and please do not delete it, otherwise it will reduce the lifespan of the screen..
-//   delay(5000);         // Delay for 5s.
-// #endif
-//   while (1)
-//     ; // The program stops here
-// }

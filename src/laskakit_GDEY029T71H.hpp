@@ -23,15 +23,13 @@ private:
 public:
     GDEY029T71H(const EPDBusSettings& settings)
         : display(GxEPD2_290_GDEY029T71H(settings.cs, settings.dc, settings.reset, settings.busy))
+    {}
+
+    bool init()
     {
-        EPDBus::Begin(settings);
         display.epd2.setBusyCallback(busyCallbackLightSleep, nullptr);
         display.init();
-    }
-
-    ~GDEY029T71H()
-    {
-        EPDBus::End();
+        return true;
     }
 
     void fullUpdate()
