@@ -86,7 +86,7 @@ public:
         instance->_sleep = option;
     }
 
-    static void BeginTransaction(uint32_t speed = 16000000)
+    static void BeginTransaction(uint32_t speed = 1600000)
     {
         SPI.beginTransaction(SPISettings(speed, MSBFIRST, SPI_MODE0));
     }
