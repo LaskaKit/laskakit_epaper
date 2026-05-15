@@ -20,29 +20,29 @@ public:
     static constexpr const char* NAME = "E2741FS081";
 
 private:
+    static constexpr size_t FRAME_SIZE = WIDTH * HEIGHT / 8;
     uint8_t* frame1;
     uint8_t* frame2;
 
 
 public:
     E2741FS081(const EPDBusSettings& settings)
+    {}
+
+    bool init()
     {
-        EPDBus::Begin(settings);
-
         // Allocate the buffers
-        const size_t frameSize = this->WIDTH * this->HEIGHT / 8;
-        this->frame1 = (uint8_t*)calloc(frameSize, sizeof(uint8_t));
-        this->frame2 = (uint8_t*)calloc(frameSize, sizeof(uint8_t));
-        if (this->frame1 == nullptr) {
-            Serial.println("malloc frame1 failed");
+        this->frame1 = (uint8_t*)calloc(FRAME_SIZE, sizeof(uint8_t));
+        if (!this->frame1) {
+            return false;
         }
-        if (this->frame2 == nullptr) {
-            Serial.println("malloc frame2 failed");
+        this->frame2 = (uint8_t*)calloc(FRAME_SIZE, sizeof(uint8_t));
+        if (!this->frame2) {
+            free(this->frame1);
+            this->frame1 = nullptr;
+            return false;
         }
-
-        // clear
-        memset(frame1, 0x00, 48000);
-        memset(frame2, 0x00, 48000);
+        return true;
     }
 
     ~E2741FS081()
@@ -122,7 +122,6 @@ public:
 
     void fullUpdate()
     {
-        Serial.println("Starting a full update.");
         // MAX SPI freq = 5 MHz (from datasheet)
         EPDBus::BeginTransaction();
 
@@ -140,11 +139,11 @@ public:
 
         // Send first frame (black pixels)
         EPDBus::WriteCmdData(0x12, {0x3b, 0x00, 0x14});  // RAM_RW
-        EPDBus::_WriteCmdData(0x10, this->frame1, 48000);
+        EPDBus::_WriteCmdData(0x10, this->frame1, FRAME_SIZE);
 
         // Send second frame (red pixels)
         EPDBus::WriteCmdData(0x12, {0x3b, 0x00, 0x14});  // RAM_RW
-        EPDBus::_WriteCmdData(0x11, this->frame2, 48000);
+        EPDBus::_WriteCmdData(0x11, this->frame2, FRAME_SIZE);
 
         // Initialize COG
         this->cogInitialization();
@@ -152,12 +151,10 @@ public:
         // DC/DC soft-start
         this->dcDcSoftStart();
 
-        Serial.println("Data send and COG init finished.");
 
         // Display refresh and power down
         this->displayRefreshAndPowerDown();
 
-        Serial.println("=== Complete Display Update Finished ===\n");
 
         EPDBus::EndTransaction();
     }
@@ -166,7 +163,6 @@ private:
 
     void cogInitialization()
     {
-        Serial.println("COG init start.");
 
         // Initial COG setup using hardcoded values from working example
         EPDBus::WriteCmdData(0x05, {0x7d});
@@ -199,12 +195,10 @@ private:
         EPDBus::WriteCmdData(0x01, {0x00});  // DCTL
         EPDBus::WriteCmdData(0x02, {0x00});  // VCOM
 
-        Serial.println("COG init end.");
     }
 
     void dcDcSoftStart()
     {
-        Serial.println("=== Starting DC/DC Soft-Start ===");
         // DCDC soft-start sequence from working example
         uint8_t Index51_data[] = {0x50, 0x01, 0x0a, 0x01};
         uint8_t Index09_data[] = {0x1f, 0x9f, 0x7f, 0xff};
@@ -249,12 +243,10 @@ private:
         }
         EPDBus::_WriteCmdData(0x09, &Index09_data[3], 1);
         EPDBus::DelayMs(1);
-        Serial.println("DC/DC soft-start complete.");
     }
 
     void displayRefreshAndPowerDown()
     {
-        Serial.println("=== Starting Display Refresh ===");
         // Wait for BUSY pin to go high
         EPDBus::BusyWaitInv();
         // EPDBus::BusyWait();
@@ -271,7 +263,6 @@ private:
         EPDBus::DelayMs(200);
         EPDBus::BusyWaitInv();
         // EPDBus::BusyWait();
-        Serial.println("Display power down complete.");
     }
 };
 
