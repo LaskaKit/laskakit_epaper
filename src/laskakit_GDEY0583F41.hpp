@@ -26,6 +26,7 @@ public:
         if (!this->frameBuffer) {
             return false;
         }
+        return true;
     }
 
     ~GDEY0583F41()
