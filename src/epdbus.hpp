@@ -181,6 +181,16 @@ public:
         gpio_wakeup_disable((gpio_num_t)instance->busy);
     }
 
+    static void WaitBusyLow()
+    {
+        BusyWait();
+    }
+
+    static void WaitBusyHigh()
+    {
+        BusyWaitInv();
+    }
+
     static void BusyPoll(uint8_t cmd)
     {
         while (true) {
