@@ -11,6 +11,10 @@ enum class ColorType {
   YBW, // yellow, black, white
   C4,  // four colors (black, white, red, yellow)
   C7,  // seven colors
+  G16,
+  BWR,
+  BWY,
+  BWRY,
 };
 
 enum class RGB565 : uint16_t {
@@ -41,12 +45,16 @@ const char *colorTypeToCStr(ColorType colorType) {
   case ColorType::G4:
     return "4G";
   case ColorType::G8:
+  case ColorType::G16:  // so sad G16 is not supported by zivyobraz
     return "8G";
   case ColorType::RBW:
+  case ColorType::BWR:
     return "RBW";
   case ColorType::YBW:
+  case ColorType::BWY:
     return "YBW";
   case ColorType::C4:
+  case ColorType::BWRY:
     return "4C";
   case ColorType::C7:
     return "7C";
