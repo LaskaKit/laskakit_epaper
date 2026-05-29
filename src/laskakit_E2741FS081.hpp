@@ -123,7 +123,7 @@ public:
     void fullUpdate()
     {
         // MAX SPI freq = 5 MHz (from datasheet)
-        EPDBus::BeginTransaction();
+        EPDBus::BeginTransaction(200000);
 
         EPDBus::DelayMs(200);
         EPDBus::Reset(HIGH);
