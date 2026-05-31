@@ -85,19 +85,20 @@ public:
     }
 
     // BW mapping (display native: 1=white, 0=black)
-    void drawPixel(int16_t x, int16_t y, uint16_t color)
+    void drawPixel(int16_t x, int16_t y, uint8_t color)
     {
         size_t pos = y * WIDTH + x;
         size_t index = pos / 8;
         size_t shift = pos % 8;
         uint8_t mask = 0b1 << (7 - shift);
 
-        if (color == RGB565::WHITE) {
-            this->bufferBW[index] |= mask;
-        }
-
-        if (color == RGB565::BLACK) {
-            this->bufferBW[index] &= ~mask;
+        switch (color) {
+            case 0:
+                this->bufferBW[index] &= ~mask;
+                break;
+            case 1:
+                this->bufferBW[index] |= mask;
+                break;
         }
     }
 };

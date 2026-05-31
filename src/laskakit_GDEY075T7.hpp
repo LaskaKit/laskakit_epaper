@@ -95,32 +95,30 @@ namespace LaskaKit::Epaper {
         0x13|  0        1         0        1  | new
         0x10|  0        0         1        1  | old
         */
-        void drawPixel(int16_t x, int16_t y, uint16_t color)
+        void drawPixel(int16_t x, int16_t y, uint8_t color)
         {
             size_t pos = y * WIDTH + x;
             size_t index = pos / 8;
             size_t shift = 7 - (pos % 8);
             uint8_t mask = 0b1 << shift;
-            // printf("%d %d %lu %lu\n", x, y, index, shift);
 
-            if (color == RGB565::WHITE) {
-                this->bufferNew[index] &= ~mask;
-                this->bufferOld[index] &= ~mask;
-            }
-
-            if (color == RGB565::BLACK) {
-                this->bufferNew[index] |= mask;
-                this->bufferOld[index] |= mask;
-            }
-
-            if (color == RGB565::LIGHT_GRAY) {
-                this->bufferNew[index] |= mask;
-                this->bufferOld[index] &= ~mask;
-            }
-
-            if (color == RGB565::DARK_GRAY) {
-                this->bufferNew[index] &= ~mask;
-                this->bufferOld[index] |= mask;
+            switch (color) {
+                case 0:
+                    this->bufferNew[index] |= mask;
+                    this->bufferOld[index] |= mask;
+                    break;
+                case 1:
+                    this->bufferNew[index] &= ~mask;
+                    this->bufferOld[index] |= mask;
+                    break;
+                case 2:
+                    this->bufferNew[index] |= mask;
+                    this->bufferOld[index] &= ~mask;
+                    break;
+                case 3:
+                    this->bufferNew[index] &= ~mask;
+                    this->bufferOld[index] &= ~mask;
+                    break;
             }
         }
 

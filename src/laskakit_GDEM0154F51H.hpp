@@ -12,7 +12,7 @@ namespace LaskaKit::Epaper {
     public:
         static constexpr size_t WIDTH = 200;
         static constexpr size_t HEIGHT = 200;
-        static constexpr ColorType COLORTYPE = ColorType::C4;
+        static constexpr ColorType COLORTYPE = ColorType::BWRY;
         static constexpr const char* NAME = "GDEM0154F51H";
 
     public:
@@ -42,16 +42,21 @@ namespace LaskaKit::Epaper {
             epd.sleep(DEEP_SLEEP);
         }
 
-        void drawPixel(int16_t x, int16_t y, uint16_t color)
+        void drawPixel(int16_t x, int16_t y, uint8_t color)
         {
-            if (color == RGB565::BLACK) {
-                epd.drawPixel(x, y, BBEP_BLACK);
-            } else if (color == RGB565::WHITE) {
-                epd.drawPixel(x, y, BBEP_WHITE);
-            } else if (color == RGB565::RED) {
-                epd.drawPixel(x, y, BBEP_RED);
-            } else if (color == RGB565::YELLOW) {
-                epd.drawPixel(x, y, BBEP_YELLOW);
+            switch (color) {
+                case 0:
+                    epd.drawPixel(x, y, BBEP_BLACK);
+                    break;
+                case 1:
+                    epd.drawPixel(x, y, BBEP_WHITE);
+                    break;
+                case 2:
+                    epd.drawPixel(x, y, BBEP_RED);
+                    break;
+                case 3:
+                    epd.drawPixel(x, y, BBEP_YELLOW);
+                    break;
             }
         }
     };

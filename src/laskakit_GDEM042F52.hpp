@@ -14,7 +14,7 @@ class GDEM042F52 {
 public:
     static constexpr size_t WIDTH = 400;
     static constexpr size_t HEIGHT = 300;
-    static constexpr ColorType COLORTYPE = ColorType::C4;
+    static constexpr ColorType COLORTYPE = ColorType::BWRY;
     static constexpr const char* NAME = "GDEM042F52";
 
 private:
@@ -23,15 +23,15 @@ private:
 public:
     GDEM042F52(const EPDBusSettings& settings)
         : display(GxEPD2_420c_GDEY0420F51(settings.cs, settings.dc, settings.reset, settings.busy))
-    {
-        EPDBus::Begin(settings);
-        display.epd2.setBusyCallback(busyCallbackLightSleep, nullptr);
-        display.init();
-    }
+    {}
 
-    ~GDEM042F52()
+    bool init()
     {
-        EPDBus::End();
+        display.epd2.setBusyCallback([](const void* data) {
+            EPDBus::WaitBusyLow();
+        }, nullptr);
+        display.init();
+        return true;
     }
 
     void fullUpdate()
@@ -39,23 +39,21 @@ public:
         display.display();
     }
 
-    void drawPixel(int16_t x, int16_t y, uint16_t color)
+    void drawPixel(int16_t x, int16_t y, uint8_t color)
     {
-        if (color == RGB565::WHITE) {
-            display.drawPixel(x, y, GxEPD_WHITE);
-            return;
-        }
-        if (color == RGB565::BLACK) {
-            display.drawPixel(x, y, GxEPD_BLACK);
-            return;
-        }
-        if (color == RGB565::RED) {
-            display.drawPixel(x, y, GxEPD_RED);
-            return;
-        }
-        if (color == RGB565::YELLOW) {
-            display.drawPixel(x, y, GxEPD_YELLOW);
-            return;
+        switch (color) {
+            case 0:
+                display.drawPixel(x, y, GxEPD_BLACK);
+                break;
+            case 1:
+                display.drawPixel(x, y, GxEPD_WHITE);
+                break;
+            case 2:
+                display.drawPixel(x, y, GxEPD_RED);
+                break;
+            case 3:
+                display.drawPixel(x, y, GxEPD_YELLOW);
+                break;
         }
     }
 };

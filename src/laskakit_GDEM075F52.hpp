@@ -8,25 +8,26 @@ namespace LaskaKit::Epaper {
     public:
         static constexpr size_t WIDTH = 800;
         static constexpr size_t HEIGHT = 480;
-        static constexpr ColorType COLORTYPE = ColorType::C4;
+        static constexpr ColorType COLORTYPE = ColorType::BWRY;
         static constexpr const char* NAME = "GDEM075F52";
     private:
         uint8_t* frameBuffer;
         static constexpr const size_t frameBufferSize = WIDTH * HEIGHT / 4;
     public:
         GDEM075F52(const EPDBusSettings& epdBusSettings)
-        {
-            EPDBus::Begin(epdBusSettings);
+        {}
 
+        bool init()
+        {
             this->frameBuffer = (uint8_t*)calloc(this->frameBufferSize, 1);
             if (!this->frameBuffer) {
-                Serial.println("error allocating ram");
+                return false;
             }
+            return true;
         }
 
         ~GDEM075F52()
         {
-            EPDBus::End();
             if (this->frameBuffer) {
                 free(this->frameBuffer);
             }
@@ -54,7 +55,7 @@ namespace LaskaKit::Epaper {
             EPDBus::WriteCmd(0x04);  // power on
             EPDBus::BusyWaitInv();
             // delay(1000);  // todo lcd_chckstatus
-        
+
             // display something
             this->writeFrameBufferToScreen();
             // EPDBus::WriteCmd(0x10);
@@ -68,12 +69,12 @@ namespace LaskaKit::Epaper {
             EPDBus::WriteCmdData(0x12, {0x00});  // display update control
             EPDBus::BusyWaitInv();
             delay(1000);  // todo lcd_chckstatus
-            
+
             // epd sleep
             EPDBus::WriteCmdData(0x02, {0x00});  // power off
             EPDBus::BusyWaitInv();
             delay(1000);  // todo lcd_chckstatus
-            
+
             EPDBus::WriteCmdData(0x07, {0xA5});  // deep sleep
         }
 
@@ -81,7 +82,7 @@ namespace LaskaKit::Epaper {
              white  black  red  yellow
         0x10|  01     00    11    10   | frameBuffer
         */
-        void drawPixel(int16_t x, int16_t y, uint16_t color)
+        void drawPixel(int16_t x, int16_t y, uint8_t color)
         {
             size_t pos = y * WIDTH + x;
             size_t index = pos / 4;
@@ -89,24 +90,24 @@ namespace LaskaKit::Epaper {
             uint8_t mask1 = 0b10 << shift;
             uint8_t mask2 = 0b1 << shift;
 
-            if (color == RGB565::WHITE) {
-                this->frameBuffer[index] &= ~mask1;
-                this->frameBuffer[index] |= mask2;
-            } 
-            
-            if (color == RGB565::BLACK) {
-                this->frameBuffer[index] &= ~mask1;
-                this->frameBuffer[index] &= ~mask2;
-            }
-            
-            if (color == RGB565::RED) {
-                this->frameBuffer[index] |= mask1;
-                this->frameBuffer[index] |= mask2;
-            }
-            
-            if (color == RGB565::YELLOW) {
-                this->frameBuffer[index] |= mask1;
-                this->frameBuffer[index] &= ~mask2;
+            switch (color)
+            {
+                case 0:
+                    this->frameBuffer[index] &= ~mask1;
+                    this->frameBuffer[index] &= ~mask2;
+                    break;
+                case 1:
+                    this->frameBuffer[index] &= ~mask1;
+                    this->frameBuffer[index] |= mask2;
+                    break;
+                case 2:
+                    this->frameBuffer[index] |= mask1;
+                    this->frameBuffer[index] |= mask2;
+                    break;
+                case 3:
+                    this->frameBuffer[index] |= mask1;
+                    this->frameBuffer[index] &= ~mask2;
+                    break;
             }
         }
 

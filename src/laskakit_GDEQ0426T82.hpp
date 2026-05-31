@@ -114,31 +114,30 @@ public:
     0x24|  0        1         0        1  | BW
     0x26|  0        0         1        1  | Gray
     */
-    void drawPixel(int16_t x, int16_t y, uint16_t color)
+    void drawPixel(int16_t x, int16_t y, uint8_t color)
     {
         size_t pos = (HEIGHT - 1 - y) * WIDTH + x;
         size_t index = pos / 8;
         size_t shift = pos % 8;
         uint8_t mask = 0b1 << (7 - shift);
 
-        if (color == RGB565::WHITE) {
-            this->bufferBW[index] &= ~mask;
-            this->bufferGray[index] &= ~mask;
-        }
-
-        if (color == RGB565::BLACK) {
-            this->bufferBW[index] |= mask;
-            this->bufferGray[index] |= mask;
-        }
-
-        if (color == RGB565::LIGHT_GRAY) {
-            this->bufferBW[index] |= mask;
-            this->bufferGray[index] &= ~mask;
-        }
-
-        if (color == RGB565::DARK_GRAY) {
-            this->bufferBW[index] &= ~mask;
-            this->bufferGray[index] |= mask;
+        switch (color) {
+            case 0:
+                this->bufferBW[index] |= mask;
+                this->bufferGray[index] |= mask;
+                break;
+            case 1:
+                this->bufferBW[index] &= ~mask;
+                this->bufferGray[index] |= mask;
+                break;
+            case 2:
+                this->bufferBW[index] |= mask;
+                this->bufferGray[index] &= ~mask;
+                break;
+            case 3:
+                this->bufferBW[index] &= ~mask;
+                this->bufferGray[index] &= ~mask;
+                break;
         }
     }
 };

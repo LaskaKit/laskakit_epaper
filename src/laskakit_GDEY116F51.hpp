@@ -12,7 +12,7 @@ namespace LaskaKit::Epaper {
     public:
         static constexpr size_t WIDTH = 960;
         static constexpr size_t HEIGHT = 640;
-        static constexpr ColorType COLORTYPE = ColorType::C4;
+        static constexpr ColorType COLORTYPE = ColorType::BWRY;
         static constexpr const char* NAME = "GDEY116F51";
     private:
         GxEPD2_4C<GxEPD2_1160c_GDEY116F51, GxEPD2_1160c_GDEY116F51::HEIGHT> display;
@@ -36,9 +36,22 @@ namespace LaskaKit::Epaper {
             display.display();
         }
 
-        void drawPixel(int16_t x, int16_t y, uint16_t color)
+        void drawPixel(int16_t x, int16_t y, uint8_t color)
         {
-            display.drawPixel(x, y, color);
+            switch (color) {
+                case 0:
+                    display.drawPixel(x, y, GxEPD_BLACK);
+                    break;
+                case 1:
+                    display.drawPixel(x, y, GxEPD_WHITE);
+                    break;
+                case 2:
+                    display.drawPixel(x, y, GxEPD_RED);
+                    break;
+                case 3:
+                    display.drawPixel(x, y, GxEPD_YELLOW);
+                    break;
+            }
         }
     };
 }

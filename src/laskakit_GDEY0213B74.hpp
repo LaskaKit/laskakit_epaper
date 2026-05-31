@@ -39,23 +39,15 @@ public:
         display.display();
     }
 
-    void drawPixel(int16_t x, int16_t y, uint16_t color)
+    void drawPixel(int16_t x, int16_t y, uint8_t color)
     {
-        if (color == RGB565::WHITE) {
-            display.drawPixel(x, y, GxEPD_WHITE);
-            return;
-        }
-        if (color == RGB565::BLACK) {
-            display.drawPixel(x, y, GxEPD_BLACK);
-            return;
-        }
-        if (color == RGB565::RED) {
-            display.drawPixel(x, y, GxEPD_RED);
-            return;
-        }
-        if (color == RGB565::YELLOW) {
-            display.drawPixel(x, y, GxEPD_YELLOW);
-            return;
+        switch (color) {
+            case 0:
+                display.drawPixel(x, y, GxEPD_BLACK);
+                break;
+            case 1:
+                display.drawPixel(x, y, GxEPD_WHITE);
+                break;
         }
     }
 };

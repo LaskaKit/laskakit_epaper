@@ -34,9 +34,16 @@ namespace LaskaKit::Epaper {
             display.display();
         }
 
-        void drawPixel(int16_t x, int16_t y, uint16_t color)
+        void drawPixel(int16_t x, int16_t y, uint8_t color)
         {
-            display.drawPixel(x, y, color);
+            switch (color) {
+                case 0:
+                    display.drawPixel(x, y, GxEPD_BLACK);
+                    break;
+                case 1:
+                    display.drawPixel(x, y, GxEPD_WHITE);
+                    break;
+            }
         }
     };
 }

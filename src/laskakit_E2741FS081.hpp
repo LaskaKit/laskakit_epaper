@@ -16,7 +16,7 @@ class E2741FS081
 public:
     static constexpr uint16_t WIDTH = 480;
     static constexpr uint16_t HEIGHT = 800;
-    static constexpr ColorType COLORTYPE = ColorType::RBW;
+    static constexpr ColorType COLORTYPE = ColorType::BWR;
     static constexpr const char* NAME = "E2741FS081";
 
 private:
@@ -93,7 +93,7 @@ public:
     // |    1   |     0  | black |
     // |    0   |     1  |   red |
     // |    0   |     0  | white |
-    void drawPixel(int16_t x, int16_t y, uint16_t color)
+    void drawPixel(int16_t x, int16_t y, uint8_t color)
     {
         size_t pos = y * this->WIDTH + x;
         size_t index = pos / 8;
@@ -104,19 +104,19 @@ public:
             return;
         }
 
-        if (color == RGB565::WHITE) {
-            this->frame1[index] &= ~mask;
-            this->frame2[index] &= ~mask;
-        }
-
-        if (color == RGB565::BLACK) {
-            this->frame1[index] |= mask;
-            this->frame2[index] &= ~mask;
-        }
-
-        if (color == RGB565::RED) {
-            this->frame1[index] &= ~mask;
-            this->frame2[index] |= mask;
+        switch (color) {
+            case 0:
+                this->frame1[index] |= mask;
+                this->frame2[index] &= ~mask;
+                break;
+            case 1:
+                this->frame1[index] &= ~mask;
+                this->frame2[index] &= ~mask;
+                break;
+            case 2:
+                this->frame1[index] &= ~mask;
+                this->frame2[index] |= mask;
+                break;
         }
     }
 

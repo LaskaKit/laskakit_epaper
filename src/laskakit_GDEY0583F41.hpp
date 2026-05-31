@@ -10,7 +10,7 @@ class GDEY0583F41 {
 public:
     static constexpr size_t WIDTH = 648;
     static constexpr size_t HEIGHT = 480;
-    static constexpr ColorType COLORTYPE = ColorType::C4;
+    static constexpr ColorType COLORTYPE = ColorType::BWRY;
     static constexpr const char* NAME = "GDEY0583F41";
 
 private:
@@ -63,7 +63,7 @@ public:
         EPDBus::WriteCmdData(0x07, {0xA5});  // epd deep sleep
     }
 
-    void drawPixel(int16_t x, int16_t y, uint16_t color)
+    void drawPixel(int16_t x, int16_t y, uint8_t color)
     {
         size_t pos = y * WIDTH + x;
         size_t index = pos / 4;
@@ -71,24 +71,23 @@ public:
         uint8_t mask1 = 0b10 << shift;
         uint8_t mask2 = 0b1 << shift;
 
-        if (color == RGB565::WHITE) {
-            this->frameBuffer[index] &= ~mask1;
-            this->frameBuffer[index] |= mask2;
-        }
-
-        if (color == RGB565::BLACK) {
-            this->frameBuffer[index] &= ~mask1;
-            this->frameBuffer[index] &= ~mask2;
-        }
-
-        if (color == RGB565::RED) {
-            this->frameBuffer[index] |= mask1;
-            this->frameBuffer[index] |= mask2;
-        }
-
-        if (color == RGB565::YELLOW) {
-            this->frameBuffer[index] |= mask1;
-            this->frameBuffer[index] &= ~mask2;
+        switch (color) {
+            case 0:
+                this->frameBuffer[index] &= ~mask1;
+                this->frameBuffer[index] &= ~mask2;
+                break;
+            case 1:
+                this->frameBuffer[index] &= ~mask1;
+                this->frameBuffer[index] |= mask2;
+                break;
+            case 2:
+                this->frameBuffer[index] |= mask1;
+                this->frameBuffer[index] |= mask2;
+                break;
+            case 3:
+                this->frameBuffer[index] |= mask1;
+                this->frameBuffer[index] &= ~mask2;
+                break;
         }
     }
 };

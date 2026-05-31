@@ -788,7 +788,7 @@ namespace LaskaKit::Epaper
   public:
     static constexpr uint16_t WIDTH = 1304;
     static constexpr uint16_t HEIGHT = 984;
-    static constexpr ColorType COLORTYPE = ColorType::C4;
+    static constexpr ColorType COLORTYPE = ColorType::BWRY;
     static constexpr const char* NAME = "GDEY1248F51";
   private:
     uint8_t* frame;
@@ -901,29 +901,17 @@ namespace LaskaKit::Epaper
         }
     }
 
-    // 00 - black, 01 - , 11 - red, 10
-    void drawPixel(int16_t x, int16_t y, uint16_t color)
+    void drawPixel(int16_t x, int16_t y, uint8_t color)
     {
         size_t pos = y * this->WIDTH + x;
         size_t index = pos / 4;
         size_t shift = 3 - (pos % 4);
 
-        // reset the pixel
+        static constexpr uint8_t mapping[] = {0b00, 0b01, 0b11, 0b10};
+        if (color >= 4) return;
+
         this->frame[index] &= ~(0b11 << (shift * 2));
-
-        uint8_t tmp = 0b00;
-        if (color == RGB565::WHITE) {
-            tmp = 0b01;
-        } else if (color == RGB565::BLACK) {
-            tmp = 0b00;
-        } else if (color == RGB565::RED) {
-            tmp = 0b11;
-        } else if (color == RGB565::YELLOW) {
-            tmp = 0b10;
-        }
-
-        // set the pixel
-        this->frame[index] |= tmp << (shift * 2);
+        this->frame[index] |= mapping[color] << (shift * 2);
     }
 
     void fullUpdate()
