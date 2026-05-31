@@ -41,15 +41,4 @@ const char *colorTypeToCStr(ColorType colorType) {
   return "";
 }
 
-
-// for GxEPD2 driver
-void busyCallbackLightSleep(const void *)
-{
-    // Enter light sleep for short periods while display is refreshing
-    // Wake up after 100ms to check BUSY status again
-    esp_sleep_enable_timer_wakeup(100 * 1000);
-    esp_light_sleep_start();
-}
-
-
 } // namespace LaskaKit::Epaper

@@ -74,7 +74,7 @@ public:
         EPDBus::Reset(); // hw reset
 
         EPDBus::WriteCmd(0x12); // sw reset
-        EPDBus::BusyWait();
+        EPDBus::WaitBusyLow();
 
         EPDBus::WriteCmdData(0x0C, {0xAE, 0xC7, 0xC3, 0xC0, 0x80}); // level 2 booster sort start
         EPDBus::WriteCmdData(0x01, {(HEIGHT - 1) % 256, (HEIGHT - 1) / 256, 0x02});
@@ -102,7 +102,7 @@ public:
         EPDBus::WriteCmdData(0x21, {0x00}); // both planes normal
         EPDBus::WriteCmdData(0x22, {0xC7}); // set full refresh
         EPDBus::WriteCmd(0x20); // master activation
-        EPDBus::BusyWait();
+        EPDBus::WaitBusyLow();
 
         // deep sleep
         EPDBus::WriteCmdData(0x10, {0x03});

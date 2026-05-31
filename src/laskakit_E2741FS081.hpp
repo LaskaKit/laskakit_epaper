@@ -248,12 +248,12 @@ private:
     void displayRefreshAndPowerDown()
     {
         // Wait for BUSY pin to go high
-        EPDBus::BusyWaitInv();
+        EPDBus::WaitBusyHigh();
         // EPDBus::BusyWait();
         // Send display refresh command
         EPDBus::WriteCmdData(0x15, {0x3c});
         EPDBus::DelayMs(1);
-        EPDBus::BusyWaitInv();
+        EPDBus::WaitBusyHigh();
         // EPDBus::BusyWait();
 
         // DCDC off sequence
@@ -261,7 +261,7 @@ private:
         EPDBus::WriteCmdData(0x05, {0x7d});
         EPDBus::WriteCmdData(0x09, {0x00});
         EPDBus::DelayMs(200);
-        EPDBus::BusyWaitInv();
+        EPDBus::WaitBusyHigh();
         // EPDBus::BusyWait();
     }
 };

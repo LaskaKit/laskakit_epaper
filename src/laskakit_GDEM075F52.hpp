@@ -39,7 +39,7 @@ namespace LaskaKit::Epaper {
             EPDBus::Reset();
 
             delay(1000);  // todo lcd_chckstatus
-            EPDBus::BusyWaitInv();
+            EPDBus::WaitBusyHigh();
             EPDBus::WriteCmdData(0x00, {0x0F, 0x29});
             EPDBus::WriteCmdData(0x06, {0x0F, 0x8B, 0x93, 0xA1});
             EPDBus::WriteCmdData(0x41, {0x00});
@@ -53,7 +53,7 @@ namespace LaskaKit::Epaper {
             EPDBus::WriteCmdData(0xE9, {0x01});
             EPDBus::WriteCmdData(0x30, {0x08});  // frame to go with waveform
             EPDBus::WriteCmd(0x04);  // power on
-            EPDBus::BusyWaitInv();
+            EPDBus::WaitBusyHigh();
             // delay(1000);  // todo lcd_chckstatus
 
             // display something
@@ -67,12 +67,12 @@ namespace LaskaKit::Epaper {
 
             // epd refresh
             EPDBus::WriteCmdData(0x12, {0x00});  // display update control
-            EPDBus::BusyWaitInv();
+            EPDBus::WaitBusyHigh();
             delay(1000);  // todo lcd_chckstatus
 
             // epd sleep
             EPDBus::WriteCmdData(0x02, {0x00});  // power off
-            EPDBus::BusyWaitInv();
+            EPDBus::WaitBusyHigh();
             delay(1000);  // todo lcd_chckstatus
 
             EPDBus::WriteCmdData(0x07, {0xA5});  // deep sleep

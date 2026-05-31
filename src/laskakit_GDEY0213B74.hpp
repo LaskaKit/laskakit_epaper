@@ -28,7 +28,7 @@ public:
     bool init()
     {
         display.epd2.setBusyCallback([](const void*) {
-            EPDBus::BusyWaitInv();
+            EPDBus::WaitBusyLow();
         }, nullptr);
         display.init();
         return true;

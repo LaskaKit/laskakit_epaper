@@ -93,7 +93,7 @@ public:
 
         EPDBus::WriteCmd(0x12); // sw reset
         EPDBus::DelayMs(10);
-        EPDBus::BusyWait();
+        EPDBus::WaitBusyLow();
 
         EPDBus::WriteCmdData(0x0C, {0x8B, 0x9C, 0xA4, 0x0F}); // soft start
         EPDBus::WriteCmdData(0x21, {0x00, 0x00});
@@ -121,7 +121,7 @@ public:
         EPDBus::WriteCmdData(0x21, {0x88, 0x00}); // b/w inverted, RED inverted
         EPDBus::WriteCmdData(0x22, {0xCF});
         EPDBus::WriteCmd(0x20);
-        EPDBus::BusyWait();
+        EPDBus::WaitBusyLow();
 
         EPDBus::WriteCmdData(0x10, {0x01}); // deep sleep
         EPDBus::EndTransaction();

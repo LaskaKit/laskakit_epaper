@@ -49,7 +49,7 @@ public:
         // power on
         EPDBus::WriteCmd(0x04);
         EPDBus::DelayMs(300);
-        EPDBus::BusyWaitInv();
+        EPDBus::WaitBusyHigh();
 
         // VCOM and data interval setting
         EPDBus::WriteCmdData(0x50, {0x21, 0x07});
@@ -72,12 +72,12 @@ public:
         // display refresh
         EPDBus::WriteCmd(0x12);
         EPDBus::DelayMs(1);
-        EPDBus::BusyWaitInv();
+        EPDBus::WaitBusyHigh();
 
         // deep sleep
         EPDBus::WriteCmdData(0x50, {0xF7});
         EPDBus::WriteCmd(0x02); // power off
-        EPDBus::BusyWaitInv();
+        EPDBus::WaitBusyHigh();
         EPDBus::DelayMs(100);
         EPDBus::WriteCmdData(0x07, {0xA5}); // deep sleep
 

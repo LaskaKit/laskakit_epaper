@@ -149,46 +149,36 @@ public:
         delay(delayMs);
     }
 
-    static void BusyWait()
+    static void WaitBusyLow()
     {
         gpio_wakeup_enable((gpio_num_t)instance->busy, GPIO_INTR_LOW_LEVEL);
         esp_sleep_enable_gpio_wakeup();
         esp_sleep_enable_timer_wakeup(30 * 1000000); // 10s safety net
 
-        log_v("EPDBus: BusyWait");
+        log_v("EPDBus: WaitBusyLow");
         while (digitalRead(instance->busy)) {
             if (instance->_sleep) {
-                log_v("EPDBus: BusyWait(sleep)");
+                log_v("EPDBus: WaitBusyLow(sleep)");
                 esp_light_sleep_start();
             }
         }
         gpio_wakeup_disable((gpio_num_t)instance->busy);
     }
 
-    static void BusyWaitInv()
+    static void WaitBusyHigh()
     {
         gpio_wakeup_enable((gpio_num_t)instance->busy, GPIO_INTR_HIGH_LEVEL);
         esp_sleep_enable_gpio_wakeup();
         esp_sleep_enable_timer_wakeup(30 * 1000000); // 10s safety net
 
-        log_v("EPDBus: BusyWaitInv");
+        log_v("EPDBus: WaitBusyHigh");
         while (!digitalRead(instance->busy)) {
             if (instance->_sleep) {
-                log_v("EPDBus: BusyWaitInv(sleep)");
+                log_v("EPDBus: WaitBusyHigh(sleep)");
                 esp_light_sleep_start();
             }
         }
         gpio_wakeup_disable((gpio_num_t)instance->busy);
-    }
-
-    static void WaitBusyLow()
-    {
-        BusyWait();
-    }
-
-    static void WaitBusyHigh()
-    {
-        BusyWaitInv();
     }
 
     static void BusyPoll(uint8_t cmd)

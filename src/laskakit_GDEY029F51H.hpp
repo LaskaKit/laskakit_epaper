@@ -24,7 +24,9 @@ namespace LaskaKit::Epaper {
 
         bool init()
         {
-            display.epd2.setBusyCallback(busyCallbackLightSleep, nullptr);
+            display.epd2.setBusyCallback([](const void*) {
+                EPDBus::WaitBusyHigh();
+            }, nullptr);
             display.init();
             return true;
         }

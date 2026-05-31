@@ -40,7 +40,7 @@ public:
     {
         EPDBus::Reset();
         EPDBus::DelayMs(20);
-        EPDBus::BusyWaitInv();
+        EPDBus::WaitBusyHigh();
 
         EPDBus::WriteCmdData(0x4D, {0x78});
         EPDBus::WriteCmdData(0x00, {0x2F, 0x29});
@@ -51,14 +51,14 @@ public:
         EPDBus::WriteCmdData(0xE9, {0x01});
         EPDBus::WriteCmdData(0x30, {0x08});
         EPDBus::WriteCmd(0x04);  // power on
-        EPDBus::BusyWaitInv();
+        EPDBus::WaitBusyHigh();
 
         EPDBus::_WriteCmdData(0x10, this->frameBuffer, this->frameBufferSize);  // send framebuffer to screen
         EPDBus::WriteCmdData(0x12, {0x00});  // display update control
-        EPDBus::BusyWaitInv();
+        EPDBus::WaitBusyHigh();
 
         EPDBus::WriteCmdData(0x02, {0x00});  // poweroff
-        EPDBus::BusyWaitInv();
+        EPDBus::WaitBusyHigh();
 
         EPDBus::WriteCmdData(0x07, {0xA5});  // epd deep sleep
     }
