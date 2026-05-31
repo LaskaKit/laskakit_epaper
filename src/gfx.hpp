@@ -13,7 +13,16 @@ private:
   T *display;
 
 public:
+  static constexpr uint8_t COLOR_BLACK = 0;
+  static constexpr uint8_t COLOR_WHITE =
+      T::COLORTYPE == ColorType::G4  ? 3  :
+      T::COLORTYPE == ColorType::G8  ? 7  :
+      T::COLORTYPE == ColorType::G16 ? 15 : 1;
+
   GFX(T *display) : Adafruit_GFX(T::WIDTH, T::HEIGHT), display(display) {}
+
+  void fillScreen(uint8_t color) { Adafruit_GFX::fillScreen((uint16_t)color); }
+  void setTextColor(uint8_t color) { Adafruit_GFX::setTextColor((uint16_t)color); }
 
   void drawPixel(int16_t x, int16_t y, uint16_t color) {
     int16_t temp;
