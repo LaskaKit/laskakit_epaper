@@ -1,11 +1,7 @@
-/* Display test for Good Display GDEY1248F51 with LaskaKit ESPink-Double driver board
- * example from GxEPD2 library is used
+/* LaskaKit ESPink-Dually driver for Good Display GDEY1248F51 (12.48", 1304x984, BWRY)
  *
  * Board:   LaskaKit ESPink-Dually:   https://www.laskakit.cz/laskakit-espink-dually-e-paper/
  * Display: Good Display GDEY1248F51  https://www.laskakit.cz/good-display-gdey1248z51-12-48--1304x984-epaper-cerveny-displej/
- *
- * Email:podpora@laskakit.cz
- * Web:laskakit.cz
  */
 
 #pragma once
@@ -13,953 +9,258 @@
 #include "laskakit_epaper.hpp"
 #include "epdbus.hpp"
 
-// IO settings
-int EPD_W21_SDA = 11;
-int EPD_W21_SCL = 12;
-int EPD_W21_CS_S2 = 41;
-int EPD_W21_CS_M1 = 10;
-int EPD_W21_RST_M2 = 39;
-int EPD_W21_RST_M1 = 7;
-int EPD_W21_DC_M2 = 6;
-int EPD_W21_DC_M1 = 15;
-int EPD_W21_CS_M2 = 48;
-int EPD_W21_CS_S1 = 18;
-
-// BUSY
-int EPD_W21_BUSY_M1 = 8;
-int EPD_W21_BUSY_M2 = 1;
-int EPD_W21_BUSY_S1 = 21;
-int EPD_W21_BUSY_S2 = 14;
-
-// CS
-#define EPD_W21_CS_M1_0 (digitalWrite(EPD_W21_CS_M1, LOW))
-#define EPD_W21_CS_M1_1 (digitalWrite(EPD_W21_CS_M1, HIGH))
-
-#define EPD_W21_CS_S1_0 (digitalWrite(EPD_W21_CS_S1, LOW))
-#define EPD_W21_CS_S1_1 (digitalWrite(EPD_W21_CS_S1, HIGH))
-
-#define EPD_W21_CS_M2_0 (digitalWrite(EPD_W21_CS_M2, LOW))
-#define EPD_W21_CS_M2_1 (digitalWrite(EPD_W21_CS_M2, HIGH))
-
-#define EPD_W21_CS_S2_0 (digitalWrite(EPD_W21_CS_S2, LOW))
-#define EPD_W21_CS_S2_1 (digitalWrite(EPD_W21_CS_S2, HIGH))
-
-// RST
-#define EPD_W21_RST_M1_0 (digitalWrite(EPD_W21_RST_M1, LOW))
-#define EPD_W21_RST_M1_1 (digitalWrite(EPD_W21_RST_M1, HIGH))
-
-#define EPD_W21_RST_M2_0 (digitalWrite(EPD_W21_RST_M2, LOW))
-#define EPD_W21_RST_M2_1 (digitalWrite(EPD_W21_RST_M2, HIGH))
-// DC
-#define EPD_W21_DC_M1_0 (digitalWrite(EPD_W21_DC_M1, LOW))
-#define EPD_W21_DC_M1_1 (digitalWrite(EPD_W21_DC_M1, HIGH))
-
-#define EPD_W21_DC_M2_0 (digitalWrite(EPD_W21_DC_M2, LOW))
-#define EPD_W21_DC_M2_1 (digitalWrite(EPD_W21_DC_M2, HIGH))
-// SCL
-#define EPD_W21_SCL_0 (digitalWrite(EPD_W21_SCL, LOW))
-#define EPD_W21_SCL_1 (digitalWrite(EPD_W21_SCL, HIGH))
-// SDA
-#define EPD_W21_SDA_0 (digitalWrite(EPD_W21_SDA, LOW))
-#define EPD_W21_SDA_1 (digitalWrite(EPD_W21_SDA, HIGH))
-
-// read SDA
-#define EPD_W21_ReadDATA_SDA (digitalRead(EPD_W21_SDA))
-// BUSY
-#define EPD_W21_ReadDATA_M1 (digitalRead(EPD_W21_BUSY_M1))
-#define EPD_W21_ReadDATA_M2 (digitalRead(EPD_W21_BUSY_M2))
-#define EPD_W21_ReadDATA_S1 (digitalRead(EPD_W21_BUSY_S1))
-#define EPD_W21_ReadDATA_S2 (digitalRead(EPD_W21_BUSY_S2))
-
-////////FUNCTION//////
-void SPI_Write(unsigned char value);
-void EPD_W21_WriteCMD_M1(unsigned char command);
-void EPD_W21_WriteCMD_S1(unsigned char command);
-void EPD_W21_WriteCMD_M2(unsigned char command);
-void EPD_W21_WriteCMD_S2(unsigned char command);
-void EPD_W21_WriteDATA_M1(unsigned char command);
-void EPD_W21_WriteDATA_S1(unsigned char command);
-void EPD_W21_WriteDATA_M2(unsigned char command);
-void EPD_W21_WriteDATA_S2(unsigned char command);
-void EPD_W21_WriteCMD_ALL(unsigned char command);
-void EPD_W21_WriteDATA_ALL(unsigned char command);
-void EPD_W21_WriteCMD_M1M2(unsigned char command);
-void EPD_W21_WriteDATA_M1M2(unsigned char command);
-// EPD init
-void EPD_W21_Init(void);
-// EPD Read
-unsigned char EPD_W21_ReadDATA_M1_temp(void);
-
-// EPD
-void EPD_init();
-void PIC_display(const unsigned char *datas);
-void Display_All_White(void);
-void Display_All_Black(void);
-void Display_All_Red(void);
-void Display_All_Yellow(void);
-void EPD_sleep(void);
-void EPD_update(void);
-void lcd_chkstatus_M1(void);
-void lcd_chkstatus_S1(void);
-void lcd_chkstatus_M2(void);
-void lcd_chkstatus_S2(void);
-
-// Tips//
-/*When the electronic paper is updateed in full screen, the picture flicker is a normal phenomenon, and the main function is to clear the display afterimage in the previous picture.
-  When the local update is performed, the screen does not flash.*/
-/*When you need to transplant the driver, you only need to change the corresponding IO. The BUSY pin is the input mode and the others are the output mode. */
-
-
-///////////////////EXTERNAL FUNCTION////////////////////////////////////////////////////////////////////////
-/////////////////////delay//////////////////////////////////////
-void driver_delay_us(unsigned int xus) // 1us
-{
-  for (; xus > 1; xus--)
-    ;
-}
-void driver_delay_xms(unsigned long xms) // 1ms
-{
-  unsigned long i = 0, j = 0;
-
-  for (j = 0; j < xms; j++)
-  {
-    for (i = 0; i < 256; i++)
-      ;
-  }
-}
-void DELAY_S(unsigned int delaytime)
-{
-  int i, j, k;
-  for (i = 0; i < delaytime; i++)
-  {
-    for (j = 0; j < 4000; j++)
-    {
-      for (k = 0; k < 222; k++)
-        ;
-    }
-  }
-}
-//////////////////////SPI///////////////////////////////////
-void SPI_Delay(unsigned char xrate)
-{
-  unsigned char i;
-  while (xrate)
-  {
-    for (i = 0; i < 2; i++)
-      ;
-    xrate--;
-  }
-}
-void SPI_Write(unsigned char value)
-{
-  unsigned char i;
-  for (i = 0; i < 8; i++)
-  {
-    EPD_W21_SCL_0;
-    SPI_Delay(1);
-    if (value & 0x80)
-      EPD_W21_SDA_1;
-    else
-      EPD_W21_SDA_0;
-    value = (value << 1);
-    SPI_Delay(1);
-    EPD_W21_SCL_1;
-    SPI_Delay(1);
-  }
-}
-
-void EPD_W21_WriteCMD_M1(unsigned char command)
-{
-  EPD_W21_CS_M1_0;
-  EPD_W21_DC_M1_0; // command write
-  SPI_Write(command);
-  EPD_W21_CS_M1_1;
-}
-
-void EPD_W21_WriteDATA_M1(unsigned char command)
-{
-  EPD_W21_CS_M1_0;
-  EPD_W21_DC_M1_1; // command write
-  SPI_Write(command);
-  EPD_W21_CS_M1_1;
-}
-
-void EPD_W21_WriteCMD_S1(unsigned char command)
-{
-  EPD_W21_CS_S1_0;
-  EPD_W21_DC_M1_0; // command write
-  SPI_Write(command);
-  EPD_W21_CS_S1_1;
-}
-
-void EPD_W21_WriteDATA_S1(unsigned char command)
-{
-  EPD_W21_CS_S1_0;
-  EPD_W21_DC_M1_1; // command write
-  SPI_Write(command);
-  EPD_W21_CS_S1_1;
-}
-
-void EPD_W21_WriteCMD_ALL(unsigned char command)
-{
-  SPI_Delay(1);
-  EPD_W21_CS_M1_0;
-  EPD_W21_CS_S1_0;
-  EPD_W21_CS_M2_0;
-  EPD_W21_CS_S2_0;
-  SPI_Delay(1);
-  EPD_W21_DC_M1_0; // command write
-  EPD_W21_DC_M2_0; // command write
-  SPI_Delay(1);
-  SPI_Write(command);
-  SPI_Delay(1);
-  EPD_W21_CS_S2_1;
-  EPD_W21_CS_M2_1;
-  EPD_W21_CS_S1_1;
-  EPD_W21_CS_M1_1;
-}
-
-void EPD_W21_WriteDATA_ALL(unsigned char command)
-{
-  SPI_Delay(1);
-  EPD_W21_CS_M1_0;
-  EPD_W21_CS_S1_0;
-  EPD_W21_CS_M2_0;
-  EPD_W21_CS_S2_0;
-  SPI_Delay(1);
-  EPD_W21_DC_M1_1; // command write
-  EPD_W21_DC_M2_1; // command write
-  SPI_Delay(1);
-  SPI_Write(command);
-  SPI_Delay(1);
-  EPD_W21_CS_S2_1;
-  EPD_W21_CS_M2_1;
-  EPD_W21_CS_S1_1;
-  EPD_W21_CS_M1_1;
-}
-
-void EPD_W21_WriteCMD_M1M2(unsigned char command)
-{
-  SPI_Delay(1);
-  EPD_W21_CS_M1_0;
-  EPD_W21_CS_M2_0;
-  SPI_Delay(1);
-  EPD_W21_DC_M1_0; // command write
-  EPD_W21_DC_M2_0; // command write
-  SPI_Delay(1);
-  SPI_Write(command);
-  SPI_Delay(1);
-  EPD_W21_CS_M1_1;
-  EPD_W21_CS_M2_1;
-}
-
-void EPD_W21_WriteDATA_M1M2(unsigned char command)
-{
-  SPI_Delay(1);
-  EPD_W21_CS_M1_0;
-  EPD_W21_CS_M2_0;
-  SPI_Delay(1);
-  EPD_W21_DC_M1_1; // command write
-  EPD_W21_DC_M2_1; // command write
-  SPI_Delay(1);
-  SPI_Write(command);
-  SPI_Delay(1);
-  EPD_W21_CS_M1_1;
-  EPD_W21_CS_M2_1;
-}
-
-void EPD_W21_WriteCMD_M2(unsigned char command)
-{
-  SPI_Delay(1);
-  EPD_W21_CS_M2_0;
-  SPI_Delay(1);
-  EPD_W21_DC_M2_0; // command write
-  SPI_Delay(1);
-  SPI_Write(command);
-  SPI_Delay(1);
-  EPD_W21_CS_M2_1;
-}
-
-void EPD_W21_WriteDATA_M2(unsigned char command)
-{
-
-  EPD_W21_CS_M2_0;
-  EPD_W21_DC_M2_1; // command write
-  SPI_Write(command);
-  EPD_W21_CS_M2_1;
-}
-
-void EPD_W21_WriteCMD_S2(unsigned char command)
-{
-  EPD_W21_CS_S2_0;
-  EPD_W21_DC_M2_0; // command write
-  SPI_Write(command);
-  EPD_W21_CS_S2_1;
-}
-
-void EPD_W21_WriteDATA_S2(unsigned char command)
-{
-  EPD_W21_CS_S2_0;
-  EPD_W21_DC_M2_1; // command write
-  SPI_Write(command);
-  EPD_W21_CS_S2_1;
-}
-
-void GPIO_IO(unsigned char i) // GPIO mode flip  0:INPUT,1:OUTPUT
-{
-  if (i == 0)
-  {
-    // SDA IN
-    pinMode(EPD_W21_SDA, INPUT);
-  }
-  else
-  {
-    // SDA OUT
-    pinMode(EPD_W21_SDA, OUTPUT);
-  }
-}
-// Read data for EPD
-unsigned char EPD_W21_ReadDATA_M1_temp(void)
-{
-  unsigned char i, j;
-  GPIO_IO(0); // GPIO mode flip  0:INPUT,1:OUTPUT
-  EPD_W21_CS_M1_0;
-  // EPD_W21_CS_S1_1;
-  // EPD_W21_CS_M2_1;
-  // EPD_W21_CS_S2_1;
-  EPD_W21_DC_M1_1; // command write
-  SPI_Delay(1);
-
-  j = 0;
-
-  SPI_Delay(1);
-  for (i = 0; i < 8; i++)
-  {
-    EPD_W21_SCL_0;
-    SPI_Delay(1);
-    j = (j << 1);
-    if (EPD_W21_ReadDATA_SDA == 1)
-      j |= 0x01;
-    else
-      j &= 0xfe;
-    SPI_Delay(1);
-    EPD_W21_SCL_1;
-    SPI_Delay(1);
-  }
-
-  EPD_W21_CS_M1_1;
-  GPIO_IO(1); // GPIO mode flip  0:INPUT,1:OUTPUT
-
-  return j;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////////
-void EPD_W21_Init(void)
-{
-
-  EPD_W21_CS_M1_1; // There are only two CS
-  EPD_W21_CS_S1_1;
-  // EPD_W21_CS_M2_1; //These two must be cancelled, otherwise there will be incomplete display
-  // EPD_W21_CS_S2_1;
-  delay(10);
-  EPD_W21_RST_M1_1;
-  EPD_W21_RST_M2_1;
-  delay(100);
-  EPD_W21_RST_M1_0; // Two resets are internally connected together
-  EPD_W21_RST_M2_0;
-  delay(100);
-  EPD_W21_RST_M1_1;
-  EPD_W21_RST_M2_1;
-  delay(100);
-}
-void RSD_Set(void)
-{
-  EPD_W21_WriteCMD_ALL(0xFF);
-  EPD_W21_WriteDATA_ALL(0xA5); //
-
-  EPD_W21_WriteCMD_ALL(0xCC);
-  EPD_W21_WriteDATA_ALL(0x55);
-  EPD_W21_WriteDATA_ALL(0xEA);
-  EPD_W21_WriteDATA_ALL(0x55);
-  EPD_W21_WriteDATA_ALL(0x05);
-
-  EPD_W21_WriteCMD_ALL(0xFF);
-  EPD_W21_WriteDATA_ALL(0xE3); //
-
-  EPD_W21_WriteCMD_ALL(0xA0);
-  lcd_chkstatus_M1();
-  lcd_chkstatus_M2();
-}
-
-void EPD_init(void)
-{
-  unsigned char temp;
-	EPD_W21_Init();
-	lcd_chkstatus_M1();
-	lcd_chkstatus_M2();
-
-	RSD_Set();//Additional code added to IC
-
-	//temperature
-	EPD_W21_WriteCMD_M1(0x40);
-	lcd_chkstatus_M1();
-	driver_delay_xms(500);
-	temp=EPD_W21_ReadDATA_M1_temp();
-	printf("%d",temp);
-	EPD_W21_WriteCMD_M1(0xE3); //Exit Read
-
-	EPD_W21_WriteCMD_ALL(0xe6);
-  EPD_W21_WriteDATA_ALL(temp);
-
-	EPD_W21_WriteCMD_ALL(0xe0);
-	EPD_W21_WriteDATA_ALL(0x03);
-  delay(20); // <- necessary
-
-	EPD_W21_WriteCMD_ALL(0xA5);
-	lcd_chkstatus_M1();
-	lcd_chkstatus_M2();
-
-  EPD_W21_WriteCMD_ALL(0xe0);
-	EPD_W21_WriteDATA_ALL(0x01);
-	driver_delay_xms(10);
-	lcd_chkstatus_M1();
-	lcd_chkstatus_M2();
-
-	EPD_W21_WriteCMD_M1(0x00);			//panel setting
-	EPD_W21_WriteDATA_M1(0x0f);		//KW-3f   KWR-2F	BWROTP 0f	BWOTP 1f
-	EPD_W21_WriteDATA_M1(0x29);
-	EPD_W21_WriteCMD_S1(0x00);			//panel setting
-	EPD_W21_WriteDATA_S1(0x0f);		//KW-3f   KWR-2F	BWROTP 0f	BWOTP 1f
-	EPD_W21_WriteDATA_M1(0x29);
-	//M2¡¢S2 turn  180
-	EPD_W21_WriteCMD_M2(0x00);			//panel setting
-	EPD_W21_WriteDATA_M2(0x03);		//KW-3f   KWR-2F	BWROTP 0f	BWOTP 1f
-	EPD_W21_WriteDATA_M1(0x29);
-	EPD_W21_WriteCMD_S2(0x00);			//panel setting
-	EPD_W21_WriteDATA_S2(0x03);		//KW-3f   KWR-2F	BWROTP 0f	BWOTP 1f
-	EPD_W21_WriteDATA_M1(0x29);
-
-	EPD_W21_WriteCMD_ALL(0x01);
-	EPD_W21_WriteDATA_ALL(0x07);
-  EPD_W21_WriteDATA_ALL(0x00);
-
-	EPD_W21_WriteCMD_ALL(0x03);
-	EPD_W21_WriteDATA_ALL(0x10);
-  EPD_W21_WriteDATA_ALL(0x54);
-	EPD_W21_WriteDATA_ALL(0x44);
-
-	EPD_W21_WriteCMD_M1(0x06);         //booster soft start
-	EPD_W21_WriteDATA_M1 (0xC0);		//A
-	EPD_W21_WriteDATA_M1 (0xC0);		//B
-	EPD_W21_WriteDATA_M1 (0xC0);		//C
-	EPD_W21_WriteDATA_M1 (0x17);
-	EPD_W21_WriteCMD_M2(0x06);         //booster soft start
-	EPD_W21_WriteDATA_M2 (0xC0);		//A
-	EPD_W21_WriteDATA_M2 (0xC0);		//B
-	EPD_W21_WriteDATA_M2 (0xC0);		//C
-	EPD_W21_WriteDATA_M2 (0xC0);
-	EPD_W21_WriteCMD_S1(0x06);         //booster soft start
-	EPD_W21_WriteDATA_S1 (0xC0);		//A
-	EPD_W21_WriteDATA_S1 (0xC0);		//B
-	EPD_W21_WriteDATA_S1 (0xC0);		//C
-	EPD_W21_WriteDATA_S1 (0x17);
-	EPD_W21_WriteCMD_S2(0x06);         //booster soft start
-	EPD_W21_WriteDATA_S2 (0xC0);		//A
-	EPD_W21_WriteDATA_S2 (0xC0);		//B
-	EPD_W21_WriteDATA_S2 (0xC0);		//C
-	EPD_W21_WriteDATA_S2 (0xC0);
-
-
-	EPD_W21_WriteCMD_M1(0x30);  //panel setting
-	EPD_W21_WriteDATA_M1(0x08);
-	EPD_W21_WriteCMD_S1(0x30);  //panel setting
-	EPD_W21_WriteDATA_S1(0x08);
-	EPD_W21_WriteCMD_M2(0x30);  //panel setting
-	EPD_W21_WriteDATA_M2(0x08);
-	EPD_W21_WriteCMD_S2(0x30);  //panel setting
-	EPD_W21_WriteDATA_S2(0x08);
-
-	EPD_W21_WriteCMD_M1(0x82);  //panel setting
-	EPD_W21_WriteDATA_M1(0X9E);
-	EPD_W21_WriteCMD_S1(0x82);  //panel setting
-	EPD_W21_WriteDATA_S1(0X9E);
-	EPD_W21_WriteCMD_M2(0x82);  //panel setting
-	EPD_W21_WriteDATA_M2(0X9E);
-	EPD_W21_WriteCMD_S2(0x82);  //panel setting
-	EPD_W21_WriteDATA_S2(0X9E);
-
-
-  EPD_W21_WriteCMD_ALL(0x50);			//Vcom and data interval setting
-	EPD_W21_WriteDATA_ALL(0x37);	  //Border KW
-
-	EPD_W21_WriteCMD_ALL(0x60);//TCON
-	EPD_W21_WriteDATA_ALL(0x02);
-	EPD_W21_WriteDATA_ALL(0x02);
-
-	EPD_W21_WriteCMD_M1(0x61);			//resolution setting
-	EPD_W21_WriteDATA_M1 (0x02);
-	EPD_W21_WriteDATA_M1 (0x88);       //source 648
-	EPD_W21_WriteDATA_M1 (0x01);		//gate 492
-	EPD_W21_WriteDATA_M1 (0xEC);
-	EPD_W21_WriteCMD_S1(0x61);			//resolution setting
-	EPD_W21_WriteDATA_S1 (0x02);
-	EPD_W21_WriteDATA_S1 (0x90);       //source 656
-	EPD_W21_WriteDATA_S1 (0x01);		//gate 492
-	EPD_W21_WriteDATA_S1 (0xEC);
-	EPD_W21_WriteCMD_M2(0x61);			//resolution setting
-	EPD_W21_WriteDATA_M2 (0x02);
-	EPD_W21_WriteDATA_M2 (0x90);       //source 656
-	EPD_W21_WriteDATA_M2 (0x01);		//gate 492
-	EPD_W21_WriteDATA_M2 (0xEC);
-	EPD_W21_WriteCMD_S2(0x61);			//resolution setting
-	EPD_W21_WriteDATA_S2 (0x02);
-	EPD_W21_WriteDATA_S2 (0x88);       //source 648
-	EPD_W21_WriteDATA_S2 (0x01);		//gate 492
-	EPD_W21_WriteDATA_S2 (0xEC);
-
-
-  EPD_W21_WriteCMD_ALL(0xE7);			//DUSPI
-	EPD_W21_WriteDATA_ALL(0x1C);
-
-	EPD_W21_WriteCMD_ALL(0xE3);
-	EPD_W21_WriteDATA_ALL(0x77);
-
-	EPD_W21_WriteCMD_ALL(0xE9);
-	EPD_W21_WriteDATA_ALL(0x01);
-
-	EPD_W21_WriteCMD_ALL(0xFF);			//DUSPI
-	EPD_W21_WriteDATA_ALL(0xA5);
-
-	EPD_W21_WriteCMD_ALL(0xEF);			//DUSPI
-	EPD_W21_WriteDATA_ALL(1);
-	EPD_W21_WriteDATA_ALL(50);
-
-	EPD_W21_WriteDATA_ALL(5);
-	EPD_W21_WriteDATA_ALL(26);
-
-	EPD_W21_WriteDATA_ALL(10);
-	EPD_W21_WriteDATA_ALL(26);
-
-	EPD_W21_WriteDATA_ALL(20);
-	EPD_W21_WriteDATA_ALL(13);
-
-	EPD_W21_WriteCMD_ALL(0XDC);			//DUSPI
-	EPD_W21_WriteDATA_ALL(0X01);
-
-	EPD_W21_WriteCMD_ALL(0XDD);			//DUSPI
-	EPD_W21_WriteDATA_ALL(1);
-
-	EPD_W21_WriteCMD_ALL(0XDE);			//DUSPI
-  EPD_W21_WriteDATA_ALL(3);
-
-	EPD_W21_WriteCMD_ALL(0XF9);			//DUSPI
-	EPD_W21_WriteDATA_ALL(0X01);
-
-	EPD_W21_WriteCMD_ALL(0XDF);			//DUSPI
-	EPD_W21_WriteDATA_ALL(0X16);
-
-	EPD_W21_WriteCMD_ALL(0XE8);			//DUSPI
-	EPD_W21_WriteDATA_ALL(0X07);
-
-	EPD_W21_WriteCMD_ALL(0XFF);			//DUSPI
-	EPD_W21_WriteDATA_ALL(0XE3);
-}
-
-void EPD_update(void)
-{
-  EPD_W21_WriteCMD_M1M2(0x04);
-  lcd_chkstatus_M1();
-  lcd_chkstatus_M2();
-  delay(300);
-  EPD_W21_WriteCMD_ALL(0x12); // DISPLAY update
-  EPD_W21_WriteDATA_ALL(1);   // Y
-  lcd_chkstatus_M1();
-  lcd_chkstatus_M2();
-}
-//////////Enter sleep//////////////////////////////
-void EPD_sleep(void)
-{
-  EPD_W21_WriteCMD_ALL(0X02); // power off
-  EPD_W21_WriteDATA_ALL(0x00);
-  lcd_chkstatus_M1();
-  lcd_chkstatus_M2();
-  EPD_W21_WriteCMD_ALL(0X07); // deep sleep
-  EPD_W21_WriteDATA_ALL(0xA5);
-}
-
-void Display_All_White(void)
-{
-  unsigned long i;
-
-  EPD_W21_WriteCMD_M1(0x10);
-  for (i = 0; i < 648 * 492 / 4; i++)
-  {
-    EPD_W21_WriteDATA_M1(0x55);
-  }
-
-  EPD_W21_WriteCMD_S1(0x10);
-  for (i = 0; i < 656 * 492 / 4; i++)
-  {
-    EPD_W21_WriteDATA_S1(0x55);
-  }
-
-  EPD_W21_WriteCMD_M2(0x10);
-  for (i = 0; i < 656 * 492 / 4; i++)
-  {
-    EPD_W21_WriteDATA_M2(0x55);
-  }
-
-  EPD_W21_WriteCMD_S2(0x10);
-  for (i = 0; i < 648 * 492 / 4; i++)
-  {
-    EPD_W21_WriteDATA_S2(0x55);
-  }
-  EPD_update();
-}
-
-void Display_All_Black(void)
-{
-  unsigned long i;
-
-  EPD_W21_WriteCMD_M1(0x10);
-  for (i = 0; i < 648 * 492 / 4; i++)
-  {
-    EPD_W21_WriteDATA_M1(0x00);
-  }
-
-  EPD_W21_WriteCMD_S1(0x10);
-  for (i = 0; i < 656 * 492 / 4; i++)
-  {
-    EPD_W21_WriteDATA_S1(0x00);
-  }
-
-  EPD_W21_WriteCMD_M2(0x10);
-  for (i = 0; i < 656 * 492 / 4; i++)
-  {
-    EPD_W21_WriteDATA_M2(0x00);
-  }
-
-  EPD_W21_WriteCMD_S2(0x10);
-  for (i = 0; i < 648 * 492 / 4; i++)
-  {
-    EPD_W21_WriteDATA_S2(0x00);
-  }
-  EPD_update();
-}
-
-void Display_All_Red(void)
-{
-  unsigned long i;
-
-  EPD_W21_WriteCMD_M1(0x10);
-  for (i = 0; i < 648 * 492 / 4; i++)
-  {
-    EPD_W21_WriteDATA_M1(0xFF);
-  }
-
-  EPD_W21_WriteCMD_S1(0x10);
-  for (i = 0; i < 656 * 492 / 4; i++)
-  {
-    EPD_W21_WriteDATA_S1(0xFF);
-  }
-
-  EPD_W21_WriteCMD_M2(0x10);
-  for (i = 0; i < 656 * 492 / 4; i++)
-  {
-    EPD_W21_WriteDATA_M2(0xFF);
-  }
-
-  EPD_W21_WriteCMD_S2(0x10);
-  for (i = 0; i < 648 * 492 / 4; i++)
-  {
-    EPD_W21_WriteDATA_S2(0xFF);
-  }
-  EPD_update();
-}
-
-
-
-/*
-
-S2 M2
-M1 S1
-
-M1 -> S1 -> M2 -> S2
-
-*/
-
-void Display_All_Yellow(void)
-{
-  unsigned long i;
-
-  EPD_W21_WriteCMD_M1(0x10);
-  for (i = 0; i < 648 * 492 / 4; i++)
-  {
-    EPD_W21_WriteDATA_M1(0xAA);
-  }
-
-  EPD_W21_WriteCMD_S1(0x10);
-  for (i = 0; i < 656 * 492 / 4; i++)
-  {
-    EPD_W21_WriteDATA_S1(0xAA);
-  }
-
-  EPD_W21_WriteCMD_M2(0x10);
-  for (i = 0; i < 656 * 492 / 4; i++)
-  {
-    EPD_W21_WriteDATA_M2(0xAA);
-  }
-
-  EPD_W21_WriteCMD_S2(0x10);
-  for (i = 0; i < 648 * 492 / 4; i++)
-  {
-    EPD_W21_WriteDATA_S2(0xAA);
-  }
-  EPD_update();
-}
-
-// picture//
-void PIC_display(const unsigned char *datas)
-{
-  unsigned int column, row;
-  ////////M1 part//////////648*492
-  EPD_W21_WriteCMD_M1(0x10);
-  for (column = 492; column < 984; column++)
-    for (row = 0; row < 648 / 4; row++)
-    {
-      EPD_W21_WriteDATA_M1(datas[row + column * 326]);
-    }
-
-  ////////S1 part//////////656*492
-  EPD_W21_WriteCMD_S1(0x10);
-  for (column = 492; column < 984; column++)
-    for (row = 648 / 4; row < 1304 / 4; row++)
-    {
-      EPD_W21_WriteDATA_S1(datas[row + column * 326]);
-    }
-
-  ////////M2 part//////////656*492
-  EPD_W21_WriteCMD_M2(0x10);
-  for (column = 0; column < 492; column++)
-    for (row = 648 / 4; row < 1304 / 4; row++)
-    {
-      EPD_W21_WriteDATA_M2(datas[row + column * 326]);
-    }
-  ////////S2 part//////////648*492
-  EPD_W21_WriteCMD_S2(0x10);
-  for (column = 0; column < 492; column++)
-    for (row = 0; row < 648 / 4; row++)
-    {
-      EPD_W21_WriteDATA_S2(datas[row + column * 326]);
-    }
-  EPD_update();
-}
-
-void lcd_chkstatus_M1(void)
-{
-  while (EPD_W21_ReadDATA_M1 == 0)
-    ;
-}
-
-void lcd_chkstatus_M2(void)
-{
-  while (EPD_W21_ReadDATA_M2 == 0)
-    ;
-}
-
-void lcd_chkstatus_S1(void)
-{
-  while (EPD_W21_ReadDATA_S1 == 0)
-    ;
-}
-
-void lcd_chkstatus_S2(void)
-{
-  while (EPD_W21_ReadDATA_S2 == 0)
-    ;
-}
-
 namespace LaskaKit::Epaper
 {
   class GDEY1248F51
   {
   public:
-    static constexpr uint16_t WIDTH = 1304;
+    static constexpr uint16_t WIDTH  = 1304;
     static constexpr uint16_t HEIGHT = 984;
     static constexpr ColorType COLORTYPE = ColorType::BWRY;
     static constexpr const char* NAME = "GDEY1248F51";
+
   private:
-    uint8_t* frame;
+    // EPDBusSettings covers the M1 panel + shared SPI lines + power:
+    //   sck   → SCL
+    //   mosi  → SDA
+    //   cs    → CS_M1
+    //   dc    → DC_M1  (shared with S1)
+    //   busy  → BUSY_M1
+    //   reset → RST_M1
+    //   pwr   → power enable
+    EPDBusSettings settings;
+
+    // Additional pins for S1, M2, S2 sub-panels (ESPink-Dually board, fixed wiring)
+    static constexpr int8_t PIN_CS_S1   = 18;
+    static constexpr int8_t PIN_CS_M2   = 48;
+    static constexpr int8_t PIN_CS_S2   = 41;
+    static constexpr int8_t PIN_DC_M2   = 6;   // shared with S2
+    static constexpr int8_t PIN_RST_M2  = 39;
+    static constexpr int8_t PIN_BUSY_M2 = 1;
+
+    uint8_t* frame = nullptr;
+
+    // All four panels simultaneously — CS/DC toggled manually, byte sent via SPI
+    void writeCmdAll(uint8_t cmd) {
+      digitalWrite(settings.cs, LOW);
+      digitalWrite(PIN_CS_S1,   LOW);
+      digitalWrite(PIN_CS_M2,   LOW);
+      digitalWrite(PIN_CS_S2,   LOW);
+      digitalWrite(settings.dc, LOW);
+      digitalWrite(PIN_DC_M2,   LOW);
+      SPI.write(cmd);
+      digitalWrite(PIN_CS_S2,   HIGH);
+      digitalWrite(PIN_CS_M2,   HIGH);
+      digitalWrite(PIN_CS_S1,   HIGH);
+      digitalWrite(settings.cs, HIGH);
+    }
+    void writeDataAll(uint8_t d) {
+      digitalWrite(settings.cs, LOW);
+      digitalWrite(PIN_CS_S1,   LOW);
+      digitalWrite(PIN_CS_M2,   LOW);
+      digitalWrite(PIN_CS_S2,   LOW);
+      digitalWrite(settings.dc, HIGH);
+      digitalWrite(PIN_DC_M2,   HIGH);
+      SPI.write(d);
+      digitalWrite(PIN_CS_S2,   HIGH);
+      digitalWrite(PIN_CS_M2,   HIGH);
+      digitalWrite(PIN_CS_S1,   HIGH);
+      digitalWrite(settings.cs, HIGH);
+    }
+
+    // M1+M2 simultaneously
+    void writeCmdM1M2(uint8_t cmd) {
+      digitalWrite(settings.cs, LOW);
+      digitalWrite(PIN_CS_M2,   LOW);
+      digitalWrite(settings.dc, LOW);
+      digitalWrite(PIN_DC_M2,   LOW);
+      SPI.write(cmd);
+      digitalWrite(settings.cs, HIGH);
+      digitalWrite(PIN_CS_M2,   HIGH);
+    }
+
+    // ---- display sequences ----
+
+    void hardwareInit() {
+      digitalWrite(settings.cs,    HIGH);
+      digitalWrite(PIN_CS_S1,      HIGH);
+      delay(10);
+      digitalWrite(settings.reset, HIGH);
+      digitalWrite(PIN_RST_M2,     HIGH);
+      delay(100);
+      digitalWrite(settings.reset, LOW);
+      digitalWrite(PIN_RST_M2,     LOW);
+      delay(100);
+      digitalWrite(settings.reset, HIGH);
+      digitalWrite(PIN_RST_M2,     HIGH);
+      delay(100);
+    }
+
+    void rsdSet() {
+      writeCmdAll(0xFF); writeDataAll(0xA5);
+      writeCmdAll(0xCC);
+      writeDataAll(0x55); writeDataAll(0xEA);
+      writeDataAll(0x55); writeDataAll(0x05);
+      writeCmdAll(0xFF); writeDataAll(0xE3);
+      writeCmdAll(0xA0);
+      EPDBus::WaitBusyHigh(settings.busy);
+      EPDBus::WaitBusyHigh(PIN_BUSY_M2);
+    }
+
+    void epdInit() {
+      hardwareInit();
+      EPDBus::WaitBusyHigh(settings.busy);
+      EPDBus::WaitBusyHigh(PIN_BUSY_M2);
+
+      rsdSet();
+
+      // Temperature compensation: use 25°C (0x19) as fixed value
+      writeCmdAll(0xe6); writeDataAll(0x19);
+      writeCmdAll(0xe0); writeDataAll(0x03);
+      delay(20);
+
+      writeCmdAll(0xA5);
+      EPDBus::WaitBusyHigh(settings.busy);
+      EPDBus::WaitBusyHigh(PIN_BUSY_M2);
+
+      writeCmdAll(0xe0); writeDataAll(0x01);
+      delay(10);
+      EPDBus::WaitBusyHigh(settings.busy);
+      EPDBus::WaitBusyHigh(PIN_BUSY_M2);
+
+      EPDBus::WriteCmd(0x00);                               EPDBus::WriteData(0x0f, settings.cs, settings.dc); EPDBus::WriteData(0x29, settings.cs, settings.dc);
+      EPDBus::WriteCmd(0x00, PIN_CS_S1, settings.dc);      EPDBus::WriteData(0x0f, PIN_CS_S1,   settings.dc); EPDBus::WriteData(0x29, settings.cs, settings.dc);
+      EPDBus::WriteCmd(0x00, PIN_CS_M2, PIN_DC_M2);        EPDBus::WriteData(0x03, PIN_CS_M2,   PIN_DC_M2);   EPDBus::WriteData(0x29, settings.cs, settings.dc);
+      EPDBus::WriteCmd(0x00, PIN_CS_S2, PIN_DC_M2);        EPDBus::WriteData(0x03, PIN_CS_S2,   PIN_DC_M2);   EPDBus::WriteData(0x29, settings.cs, settings.dc);
+
+      writeCmdAll(0x01); writeDataAll(0x07); writeDataAll(0x00);
+      writeCmdAll(0x03); writeDataAll(0x10); writeDataAll(0x54); writeDataAll(0x44);
+
+      EPDBus::WriteCmd(0x06);                          EPDBus::WriteData(0xC0, settings.cs, settings.dc); EPDBus::WriteData(0xC0, settings.cs, settings.dc); EPDBus::WriteData(0xC0, settings.cs, settings.dc); EPDBus::WriteData(0x17, settings.cs, settings.dc);
+      EPDBus::WriteCmd(0x06, PIN_CS_M2, PIN_DC_M2);   EPDBus::WriteData(0xC0, PIN_CS_M2,   PIN_DC_M2);   EPDBus::WriteData(0xC0, PIN_CS_M2,   PIN_DC_M2);   EPDBus::WriteData(0xC0, PIN_CS_M2,   PIN_DC_M2);   EPDBus::WriteData(0xC0, PIN_CS_M2, PIN_DC_M2);
+      EPDBus::WriteCmd(0x06, PIN_CS_S1, settings.dc); EPDBus::WriteData(0xC0, PIN_CS_S1,   settings.dc); EPDBus::WriteData(0xC0, PIN_CS_S1,   settings.dc); EPDBus::WriteData(0xC0, PIN_CS_S1,   settings.dc); EPDBus::WriteData(0x17, PIN_CS_S1, settings.dc);
+      EPDBus::WriteCmd(0x06, PIN_CS_S2, PIN_DC_M2);   EPDBus::WriteData(0xC0, PIN_CS_S2,   PIN_DC_M2);   EPDBus::WriteData(0xC0, PIN_CS_S2,   PIN_DC_M2);   EPDBus::WriteData(0xC0, PIN_CS_S2,   PIN_DC_M2);   EPDBus::WriteData(0xC0, PIN_CS_S2, PIN_DC_M2);
+
+      EPDBus::WriteCmd(0x30);                          EPDBus::WriteData(0x08, settings.cs, settings.dc);
+      EPDBus::WriteCmd(0x30, PIN_CS_S1, settings.dc); EPDBus::WriteData(0x08, PIN_CS_S1,   settings.dc);
+      EPDBus::WriteCmd(0x30, PIN_CS_M2, PIN_DC_M2);   EPDBus::WriteData(0x08, PIN_CS_M2,   PIN_DC_M2);
+      EPDBus::WriteCmd(0x30, PIN_CS_S2, PIN_DC_M2);   EPDBus::WriteData(0x08, PIN_CS_S2,   PIN_DC_M2);
+
+      EPDBus::WriteCmd(0x82);                          EPDBus::WriteData(0x9E, settings.cs, settings.dc);
+      EPDBus::WriteCmd(0x82, PIN_CS_S1, settings.dc); EPDBus::WriteData(0x9E, PIN_CS_S1,   settings.dc);
+      EPDBus::WriteCmd(0x82, PIN_CS_M2, PIN_DC_M2);   EPDBus::WriteData(0x9E, PIN_CS_M2,   PIN_DC_M2);
+      EPDBus::WriteCmd(0x82, PIN_CS_S2, PIN_DC_M2);   EPDBus::WriteData(0x9E, PIN_CS_S2,   PIN_DC_M2);
+
+      writeCmdAll(0x50); writeDataAll(0x37);
+      writeCmdAll(0x60); writeDataAll(0x02); writeDataAll(0x02);
+
+      EPDBus::WriteCmd(0x61);                          EPDBus::WriteData(0x02, settings.cs, settings.dc); EPDBus::WriteData(0x88, settings.cs, settings.dc); EPDBus::WriteData(0x01, settings.cs, settings.dc); EPDBus::WriteData(0xEC, settings.cs, settings.dc);
+      EPDBus::WriteCmd(0x61, PIN_CS_S1, settings.dc); EPDBus::WriteData(0x02, PIN_CS_S1,   settings.dc); EPDBus::WriteData(0x90, PIN_CS_S1,   settings.dc); EPDBus::WriteData(0x01, PIN_CS_S1,   settings.dc); EPDBus::WriteData(0xEC, PIN_CS_S1, settings.dc);
+      EPDBus::WriteCmd(0x61, PIN_CS_M2, PIN_DC_M2);   EPDBus::WriteData(0x02, PIN_CS_M2,   PIN_DC_M2);   EPDBus::WriteData(0x90, PIN_CS_M2,   PIN_DC_M2);   EPDBus::WriteData(0x01, PIN_CS_M2,   PIN_DC_M2);   EPDBus::WriteData(0xEC, PIN_CS_M2, PIN_DC_M2);
+      EPDBus::WriteCmd(0x61, PIN_CS_S2, PIN_DC_M2);   EPDBus::WriteData(0x02, PIN_CS_S2,   PIN_DC_M2);   EPDBus::WriteData(0x88, PIN_CS_S2,   PIN_DC_M2);   EPDBus::WriteData(0x01, PIN_CS_S2,   PIN_DC_M2);   EPDBus::WriteData(0xEC, PIN_CS_S2, PIN_DC_M2);
+
+      writeCmdAll(0xE7); writeDataAll(0x1C);
+      writeCmdAll(0xE3); writeDataAll(0x77);
+      writeCmdAll(0xE9); writeDataAll(0x01);
+      writeCmdAll(0xFF); writeDataAll(0xA5);
+      writeCmdAll(0xEF);
+      writeDataAll(1);  writeDataAll(50);
+      writeDataAll(5);  writeDataAll(26);
+      writeDataAll(10); writeDataAll(26);
+      writeDataAll(20); writeDataAll(13);
+      writeCmdAll(0xDC); writeDataAll(0x01);
+      writeCmdAll(0xDD); writeDataAll(0x01);
+      writeCmdAll(0xDE); writeDataAll(0x03);
+      writeCmdAll(0xF9); writeDataAll(0x01);
+      writeCmdAll(0xDF); writeDataAll(0x16);
+      writeCmdAll(0xE8); writeDataAll(0x07);
+      writeCmdAll(0xFF); writeDataAll(0xE3);
+    }
+
+    void epdUpdate() {
+      writeCmdM1M2(0x04);
+      EPDBus::WaitBusyHigh(settings.busy);
+      EPDBus::WaitBusyHigh(PIN_BUSY_M2);
+      delay(300);
+      writeCmdAll(0x12); writeDataAll(0x01);
+      EPDBus::WaitBusyHigh(settings.busy);
+      EPDBus::WaitBusyHigh(PIN_BUSY_M2);
+    }
+
+    void epdSleep() {
+      writeCmdAll(0x02); writeDataAll(0x00);
+      EPDBus::WaitBusyHigh(settings.busy);
+      EPDBus::WaitBusyHigh(PIN_BUSY_M2);
+      writeCmdAll(0x07); writeDataAll(0xA5);
+    }
+
+    void frameDisplay() {
+      unsigned int column, row;
+
+      EPDBus::WriteCmd(0x10);
+      for (column = 492; column < 984; column++)
+        for (row = 0; row < 648 / 4; row++)
+          EPDBus::WriteData(this->frame[row + column * 326], settings.cs, settings.dc);
+
+      EPDBus::WriteCmd(0x10, PIN_CS_S1, settings.dc);
+      for (column = 492; column < 984; column++)
+        for (row = 648 / 4; row < 1304 / 4; row++)
+          EPDBus::WriteData(this->frame[row + column * 326], PIN_CS_S1, settings.dc);
+
+      EPDBus::WriteCmd(0x10, PIN_CS_M2, PIN_DC_M2);
+      for (column = 0; column < 492; column++)
+        for (row = 648 / 4; row < 1304 / 4; row++)
+          EPDBus::WriteData(this->frame[row + column * 326], PIN_CS_M2, PIN_DC_M2);
+
+      EPDBus::WriteCmd(0x10, PIN_CS_S2, PIN_DC_M2);
+      for (column = 0; column < 492; column++)
+        for (row = 0; row < 648 / 4; row++)
+          EPDBus::WriteData(this->frame[row + column * 326], PIN_CS_S2, PIN_DC_M2);
+
+      epdUpdate();
+    }
 
   public:
-    GDEY1248F51(const EPDBusSettings& epdBusSettings)
+    GDEY1248F51(const EPDBusSettings& settings)
+      : settings(settings)
     {}
 
     bool init()
     {
-    // Allocate the buffers
-      const size_t frameSize = this->WIDTH * this->HEIGHT / 4;
+      const size_t frameSize = WIDTH * HEIGHT / 4;
       this->frame = (uint8_t*)calloc(frameSize, sizeof(uint8_t));
-      if (!this->frame) {
-          return false;
-      }
-      // turn on power to display
-      pinMode(47, OUTPUT);
-      digitalWrite(47, HIGH); // turn the LED on (HIGH is the voltage level)
-      Serial.println("Display power ON");
-      delay(1000);
+      if (!this->frame) return false;
 
-      pinMode(EPD_W21_SDA, OUTPUT);
-      pinMode(EPD_W21_SCL, OUTPUT);
-      pinMode(EPD_W21_CS_S2, OUTPUT);
-      pinMode(EPD_W21_CS_M1, OUTPUT);
-      pinMode(EPD_W21_RST_M2, OUTPUT);
-      pinMode(EPD_W21_RST_M1, OUTPUT);
-      pinMode(EPD_W21_DC_M2, OUTPUT);
-      pinMode(EPD_W21_DC_M1, OUTPUT);
-      pinMode(EPD_W21_CS_M2, OUTPUT);
-      pinMode(EPD_W21_CS_S1, OUTPUT);
-
-      pinMode(EPD_W21_BUSY_M1, INPUT);
-      pinMode(EPD_W21_BUSY_M2, INPUT);
-      pinMode(EPD_W21_BUSY_S1, INPUT);
-      pinMode(EPD_W21_BUSY_S2, INPUT);
+      pinMode(PIN_CS_S1,   OUTPUT);
+      pinMode(PIN_CS_M2,   OUTPUT);
+      pinMode(PIN_CS_S2,   OUTPUT);
+      pinMode(PIN_DC_M2,   OUTPUT);
+      pinMode(PIN_RST_M2,  OUTPUT);
+      pinMode(PIN_BUSY_M2, INPUT);
 
       return true;
     }
 
-    void horizontalLines()
-    {
-      for (int row = 0; row < this->HEIGHT; row++) {
-            for (int col = 0; col < this->WIDTH; col += 4) {
-                int index = (row * this->WIDTH + col) / 4;
-                uint8_t tmpFrame = 0;
-
-                for (int bit = 0; bit < 4; bit++) {
-                    tmpFrame <<= 2;
-                    if (row % 4 == 0) {
-                        tmpFrame |= 0x3;
-                    } else if (row % 3 == 0) {
-                        tmpFrame |= 0x0;
-                    } else if (row % 2 == 0) {
-                        tmpFrame |= 0x2;
-                    } else {
-                        tmpFrame |= 0x1;
-                    }
-                }
-                this->frame[index] = tmpFrame;
-                // Serial.printf("%x\n", tmpFrame);
-            }
-        }
-    }
-
-    void verticalLines()
-    {
-      for (int row = 0; row < this->HEIGHT; row++) {
-        for (int col = 0; col < this->WIDTH; col++) {
-          if (col % 4 == 0) {
-              this->drawPixel(col, row, 0x3);
-          } else if (col % 3 == 0) {
-              this->drawPixel(col, row, 0x0);
-          } else if (col % 2 == 0) {
-              this->drawPixel(col, row, 0x2);
-          } else {
-              this->drawPixel(col, row, 0x1);
-          }
-        }
-      }
-    }
-
-    void setupBuffer()
-    {
-        for (int row = 0; row < this->HEIGHT; row++) {
-            for (int col = 0; col < this->WIDTH; col += 4) {
-                int index = (row * this->WIDTH + col) / 4;
-                uint8_t tmpFrame = 0;
-
-                for (int bit = 0; bit < 4; bit++) {
-                    tmpFrame <<= 2;
-                    if (row < 100) {
-                        // First part: Red
-                        tmpFrame |= 0x3;
-                    } else if (row < 200) {
-                        // Second part: Black
-                        tmpFrame |= 0x0;
-                    } else if (row < 300) {
-                        // Third part: White
-                        tmpFrame |= 0x2;
-                    } else {
-                        // Fourth part: ?
-                        tmpFrame |= 0x1;
-                    }
-                }
-                this->frame[index] = tmpFrame;
-                // Serial.printf("%x\n", tmpFrame);
-            }
-        }
-    }
-
     void drawPixel(int16_t x, int16_t y, uint8_t color)
     {
-        size_t pos = y * this->WIDTH + x;
-        size_t index = pos / 4;
-        size_t shift = 3 - (pos % 4);
+      size_t pos   = y * WIDTH + x;
+      size_t index = pos / 4;
+      size_t shift = 3 - (pos % 4);
 
-        static constexpr uint8_t mapping[] = {0b00, 0b01, 0b11, 0b10};
-        if (color >= 4) return;
+      static constexpr uint8_t mapping[] = {0b00, 0b01, 0b11, 0b10};
+      if (color >= 4) return;
 
-        this->frame[index] &= ~(0b11 << (shift * 2));
-        this->frame[index] |= mapping[color] << (shift * 2);
+      this->frame[index] &= ~(0b11 << (shift * 2));
+      this->frame[index] |= mapping[color] << (shift * 2);
     }
 
     void fullUpdate()
     {
-      EPD_init();
-      this->frameDisplay();
-      EPD_sleep();
-    }
-
-    // picture//
-    void frameDisplay()
-    {
-      unsigned int column, row;
-      ////////M1 part//////////648*492
-      EPD_W21_WriteCMD_M1(0x10);
-      for (column = 492; column < 984; column++)
-        for (row = 0; row < 648 / 4; row++)
-        {
-          // Serial.printf("M1 %x\n", this->frame[row + column * 326]);
-          EPD_W21_WriteDATA_M1(this->frame[row + column * 326]);
-        }
-
-        ////////S1 part//////////656*492
-        EPD_W21_WriteCMD_S1(0x10);
-        for (column = 492; column < 984; column++)
-        for (row = 648 / 4; row < 1304 / 4; row++)
-        {
-          // Serial.printf("S1 %x\n", this->frame[row + column * 326]);
-          EPD_W21_WriteDATA_S1(this->frame[row + column * 326]);
-        }
-
-        ////////M2 part//////////656*492
-        EPD_W21_WriteCMD_M2(0x10);
-        for (column = 0; column < 492; column++)
-        for (row = 648 / 4; row < 1304 / 4; row++)
-        {
-          // Serial.printf("M2 %x\n", this->frame[row + column * 326]);
-          EPD_W21_WriteDATA_M2(this->frame[row + column * 326]);
-        }
-        ////////S2 part//////////648*492
-        EPD_W21_WriteCMD_S2(0x10);
-        for (column = 0; column < 492; column++)
-        for (row = 0; row < 648 / 4; row++)
-        {
-          // Serial.printf("S2 %x\n", this->frame[row + column * 326]);
-          EPD_W21_WriteDATA_S2(this->frame[row + column * 326]);
-        }
-      EPD_update();
+      EPDBus::BeginTransaction();
+      epdInit();
+      frameDisplay();
+      epdSleep();
+      EPDBus::EndTransaction();
     }
   };
 }

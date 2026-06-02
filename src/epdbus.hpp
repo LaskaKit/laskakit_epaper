@@ -131,6 +131,22 @@ public:
         digitalWrite(instance->cs, HIGH);
     }
 
+    static void WriteCmd(uint8_t cmd, int8_t cs, int8_t dc)
+    {
+        digitalWrite(cs, LOW);
+        digitalWrite(dc, LOW);
+        SPI.write(cmd);
+        digitalWrite(cs, HIGH);
+    }
+
+    static void WriteData(uint8_t data, int8_t cs, int8_t dc)
+    {
+        digitalWrite(cs, LOW);
+        digitalWrite(dc, HIGH);
+        SPI.write(data);
+        digitalWrite(cs, HIGH);
+    }
+
     static void _WriteCmdData(uint8_t cmd, const uint8_t* data, size_t len)
     {
         WriteCmd(cmd);
@@ -163,6 +179,22 @@ public:
             }
         }
         gpio_wakeup_disable((gpio_num_t)instance->busy);
+    }
+
+    static void WaitBusyHigh(int8_t pin)
+    {
+        gpio_wakeup_enable((gpio_num_t)pin, GPIO_INTR_HIGH_LEVEL);
+        esp_sleep_enable_gpio_wakeup();
+        esp_sleep_enable_timer_wakeup(30 * 1000000);
+
+        log_v("EPDBus: WaitBusyHigh(%d)", pin);
+        while (!digitalRead(pin)) {
+            if (instance->_sleep) {
+                log_v("EPDBus: WaitBusyHigh(sleep)");
+                esp_light_sleep_start();
+            }
+        }
+        gpio_wakeup_disable((gpio_num_t)pin);
     }
 
     static void WaitBusyHigh()
