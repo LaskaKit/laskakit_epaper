@@ -11,6 +11,8 @@ namespace LaskaKit::Epaper {
 
 class GDEM102F91 : public GDEY116F51 {
 public:
+    static constexpr const char* NAME = "GDEM102F91";
+
     GDEM102F91(const EPDBusSettings& settings)
         : GDEY116F51(settings)
     {}

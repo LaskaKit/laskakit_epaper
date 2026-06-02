@@ -15,8 +15,12 @@ namespace LaskaKit::Epaper {
         static constexpr ColorType COLORTYPE = ColorType::BWRY;
         static constexpr const char* NAME = "GDEM0154F51H";
 
+    private:
+        EPDBusSettings settings;
+
     public:
         GDEM0154F51H(const EPDBusSettings& settings)
+            : settings(settings)
         {}
 
         bool init()

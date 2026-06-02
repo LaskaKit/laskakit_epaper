@@ -100,7 +100,7 @@ public:
         size_t shift = 7 - (pos % 8);
         uint8_t mask = 0b1 << shift;
 
-        if (index > 47950) {
+        if (index >= FRAME_SIZE) {
             return;
         }
 
