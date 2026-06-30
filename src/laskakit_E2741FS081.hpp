@@ -14,13 +14,16 @@ namespace LaskaKit::Epaper {
 class E2741FS081
 {
 public:
-    static constexpr uint16_t WIDTH = 480;
-    static constexpr uint16_t HEIGHT = 800;
+    static constexpr uint16_t WIDTH = 800;
+    static constexpr uint16_t HEIGHT = 480;
     static constexpr ColorType COLORTYPE = ColorType::BWR;
     static constexpr const char* NAME = "E2741FS081";
 
 private:
-    static constexpr size_t FRAME_SIZE = WIDTH * HEIGHT / 8;
+    // Physical panel dimensions (portrait); WIDTH/HEIGHT expose rotated landscape view
+    static constexpr uint16_t PHYS_WIDTH = 480;
+    static constexpr uint16_t PHYS_HEIGHT = 800;
+    static constexpr size_t FRAME_SIZE = PHYS_WIDTH * PHYS_HEIGHT / 8;
     uint8_t* frame1;
     uint8_t* frame2;
 
@@ -58,9 +61,9 @@ public:
     void setupBuffer()
     {
 
-        for (int row = 0; row < this->HEIGHT; row++) {
-            for (int col = 0; col < this->WIDTH; col += 8) {
-                int index = (row * this->WIDTH + col) / 8;
+        for (int row = 0; row < this->PHYS_HEIGHT; row++) {
+            for (int col = 0; col < this->PHYS_WIDTH; col += 8) {
+                int index = (row * this->PHYS_WIDTH + col) / 8;
                 uint8_t tmpFrame1 = 0;
                 uint8_t tmpFrame2 = 0;
 
@@ -95,7 +98,10 @@ public:
     // |    0   |     0  | white |
     void drawPixel(int16_t x, int16_t y, uint8_t color)
     {
-        size_t pos = y * this->WIDTH + x;
+        // 90° CCW rotation: logical (x,y) in 800x480 → physical (px,py) in 480x800
+        int16_t px = y;
+        int16_t py = (PHYS_HEIGHT - 1) - x;
+        size_t pos = py * PHYS_WIDTH + px;
         size_t index = pos / 8;
         size_t shift = 7 - (pos % 8);
         uint8_t mask = 0b1 << shift;
