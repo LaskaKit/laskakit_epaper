@@ -28,10 +28,9 @@ const char *colorTypeToCStr(ColorType colorType) {
     return "8G";
   case ColorType::RBW:
   case ColorType::BWR:
-    return "RBW";
   case ColorType::YBW:
   case ColorType::BWY:
-    return "YBW";
+    return "3C";
   case ColorType::C4:
   case ColorType::BWRY:
     return "4C";
