@@ -19,7 +19,6 @@ struct EPDBusSettings {
     int8_t dc;
     int8_t busy;
     int8_t reset;
-    int8_t pwr;
 };
 
 class EPDBus {
@@ -28,34 +27,28 @@ private:
     int8_t dc;
     int8_t busy;
     int8_t reset;
-    int8_t pwr;
 
     bool _sleep = true;
 
     static EPDBus* instance;
 
-    EPDBus(int8_t cs, int8_t dc, int8_t busy, int8_t reset, int8_t pwr)
-        : cs(cs), dc(dc), busy(busy), reset(reset), pwr(pwr)
+    EPDBus(int8_t cs, int8_t dc, int8_t busy, int8_t reset)
+        : cs(cs), dc(dc), busy(busy), reset(reset)
     {}
 
     EPDBus(const EPDBusSettings& settings)
-        : cs(settings.cs), dc(settings.dc), busy(settings.busy), reset(settings.reset), pwr(settings.pwr)
+        : cs(settings.cs), dc(settings.dc), busy(settings.busy), reset(settings.reset)
     {}
 
 public:
-    static void Begin(int8_t sck, int8_t mosi, int8_t cs, int8_t dc, int8_t busy, int8_t reset, int8_t pwr)
+    static void Begin(int8_t sck, int8_t mosi, int8_t cs, int8_t dc, int8_t busy, int8_t reset)
     {
         if (instance != nullptr) {
             return;
         }
-        if (pwr != -1) {
-            pinMode(pwr, OUTPUT);
-            digitalWrite(pwr, HIGH);
-            delay(500);
-        }
 
 
-        instance = new EPDBus(cs, dc, busy, reset, pwr);
+        instance = new EPDBus(cs, dc, busy, reset);
         SPI.begin(sck, -1, mosi, cs);
         pinMode(cs, OUTPUT);
         pinMode(dc, OUTPUT);
@@ -69,7 +62,7 @@ public:
 
     static void Begin(const EPDBusSettings& settings)
     {
-        EPDBus::Begin(settings.sck, settings.mosi, settings.cs, settings.dc, settings.busy, settings.reset, settings.pwr);
+        EPDBus::Begin(settings.sck, settings.mosi, settings.cs, settings.dc, settings.busy, settings.reset);
     }
 
     static void End()
