@@ -12,8 +12,9 @@ namespace LaskaKit::Epaper {
 
 class GDEY0213B74 {
 public:
-    static constexpr size_t WIDTH = 122;
-    static constexpr size_t HEIGHT = 250;
+    // Panel is physically 122x250 (portrait); expose it as landscape by default
+    static constexpr size_t WIDTH = 250;
+    static constexpr size_t HEIGHT = 122;
     static constexpr ColorType COLORTYPE = ColorType::BW;
     static constexpr const char* NAME = "GDEY0213B74";
 
@@ -31,6 +32,8 @@ public:
             EPDBus::WaitBusyLow();
         }, nullptr);
         display.init();
+        // Rotate 270° so the panel is driven in zivyobraz compatible orientation
+        display.setRotation(1);
         return true;
     }
 
