@@ -10,6 +10,7 @@ enum class ColorType {
   RBW, // red, black, white
   YBW, // yellow, black, white
   C4,  // four colors (black, white, red, yellow)
+  C6,  // six colors (black, white, red, yellow, green, blue)
   C7,  // seven colors
   G16,
   BWR,
@@ -34,6 +35,7 @@ const char *colorTypeToCStr(ColorType colorType) {
   case ColorType::C4:
   case ColorType::BWRY:
     return "4C";
+  case ColorType::C6:  // reports as 7C, zivyobraz has no dedicated 6-color code
   case ColorType::C7:
     return "7C";
   }

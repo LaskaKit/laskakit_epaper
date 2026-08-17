@@ -98,6 +98,9 @@ public:
         case ColorType::BWRY:
             _drawColorSwatch(4, this->width() - 40);
             break;
+        case ColorType::C6:
+            _drawColorSwatch(6, this->width() - 40);
+            break;
         case ColorType::BWR:
         case ColorType::RBW:
         case ColorType::BWY:
